@@ -241,10 +241,27 @@ public class KeyboardParams {
             mAbsolutePopupKeyWidth = (int) (alphaSymbolKeyWidth * mBaseWidth);
 
             if (Settings.getValues().mNarrowKeyGaps) {
-                mRelativeHorizontalGap = keyboardAttr.getFraction(
+                float horizontalGapNarrow = keyboardAttr.getFraction(
                         R.styleable.Keyboard_horizontalGapNarrow, 1, 1, 0);
-                mRelativeVerticalGap = keyboardAttr.getFraction(
+                float verticalGapNarrow = keyboardAttr.getFraction(
                         R.styleable.Keyboard_verticalGapNarrow, 1, 1, 0);
+                int level = Settings.getValues().mNarrowKeyGapsLevel;
+                if (level == 2) {
+                    mRelativeHorizontalGap = horizontalGapNarrow * 0.75f;
+                    mRelativeVerticalGap = verticalGapNarrow * 0.75f;
+                } else if (level == 3) {
+                    mRelativeHorizontalGap = horizontalGapNarrow * 0.5f;
+                    mRelativeVerticalGap = verticalGapNarrow * 0.5f;
+                } else if (level == 4) {
+                    mRelativeHorizontalGap = horizontalGapNarrow * 0.25f;
+                    mRelativeVerticalGap = verticalGapNarrow * 0.25f;
+                } else if (level == 5) {
+                    mRelativeHorizontalGap = 0f;
+                    mRelativeVerticalGap = 0f;
+                } else {
+                    mRelativeHorizontalGap = horizontalGapNarrow;
+                    mRelativeVerticalGap = verticalGapNarrow;
+                }
             } else {
                 mRelativeHorizontalGap = keyboardAttr.getFraction(
                         R.styleable.Keyboard_horizontalGap, 1, 1, 0);

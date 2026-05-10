@@ -89,6 +89,88 @@ class ProofreadService(private val context: Context) {
 
     fun hasApiKey(): Boolean = !getApiKey().isNullOrBlank()
 
+    suspend fun fetchAvailableModels(provider: AIProvider): List<String> = withContext(Dispatchers.IO) {
+        when (provider) {
+            AIProvider.GEMINI -> fetchGeminiModels()
+            AIProvider.GROQ -> fetchGroqModels()
+            else -> emptyList()
+        }
+    }
+
+    private fun fetchGeminiModels(): List<String> {
+        val apiKey = getApiKey() ?: return AVAILABLE_MODELS
+        val url = URL("https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey")
+        val connection = url.openConnection() as HttpURLConnection
+        return try {
+            connection.requestMethod = "GET"
+            connection.connect()
+            if (connection.responseCode == 200) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(response)
+                val modelsArray = json.optJSONArray("models") ?: return AVAILABLE_MODELS
+                val models = mutableListOf<String>()
+                for (i in 0 until modelsArray.length()) {
+                    val model = modelsArray.getJSONObject(i)
+                    val name = model.getString("name").removePrefix("models/")
+                    val methods = model.optJSONArray("supportedGenerationMethods")
+                    var isTextModel = false
+                    if (methods != null) {
+                        for (j in 0 until methods.length()) {
+                            if (methods.getString(j) == "generateContent") {
+                                isTextModel = true
+                                break
+                            }
+                        }
+                    }
+                    if (isTextModel) models.add(name)
+                }
+                models.ifEmpty { AVAILABLE_MODELS }
+            } else {
+                AVAILABLE_MODELS
+            }
+        } catch (e: Exception) {
+            Log.e("ProofreadService", "Failed to fetch Gemini models", e)
+            AVAILABLE_MODELS
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun fetchGroqModels(): List<String> {
+        val token = getGroqToken() ?: return GroqModels.AVAILABLE_MODELS
+        val url = URL("https://api.groq.com/openai/v1/models")
+        val connection = url.openConnection() as HttpURLConnection
+        return try {
+            connection.requestMethod = "GET"
+            connection.setRequestProperty("Authorization", "Bearer $token")
+            connection.connect()
+            if (connection.responseCode == 200) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(response)
+                val data = json.optJSONArray("data") ?: return GroqModels.AVAILABLE_MODELS
+                val models = mutableListOf<String>()
+                for (i in 0 until data.length()) {
+                    val model = data.getJSONObject(i)
+                    val id = model.getString("id")
+                    // Groq models are mostly text, but we filter out audio/vision models if possible
+                    // Currently filtering out Whisper (audio) models
+                    val isTextModel = !id.contains("whisper", ignoreCase = true)
+                    if (model.optBoolean("active", true) && isTextModel) {
+                        models.add(id)
+                    }
+                }
+                models.ifEmpty { GroqModels.AVAILABLE_MODELS }
+            } else {
+                GroqModels.AVAILABLE_MODELS
+            }
+        } catch (e: Exception) {
+            Log.e("ProofreadService", "Failed to fetch Groq models", e)
+            GroqModels.AVAILABLE_MODELS
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     // Offline compatibility methods
     fun getModelPath(): String? = null
     fun setModelPath(path: String?) { /* No-op for standard flavor */ }

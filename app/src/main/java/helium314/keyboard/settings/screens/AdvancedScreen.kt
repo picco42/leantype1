@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -289,8 +290,14 @@ fun createAdvancedSettings(context: Context) = listOfNotNull(
     Setting(context, SettingsWithoutKey.GEMINI_MODEL, R.string.gemini_model_title, R.string.gemini_model_summary) { setting ->
         val ctx = LocalContext.current
         val service = remember { helium314.keyboard.latin.utils.ProofreadService(ctx) }
-        val items = helium314.keyboard.latin.utils.ProofreadService.AVAILABLE_MODELS.map { it to it }
+        var items by remember { mutableStateOf(helium314.keyboard.latin.utils.ProofreadService.AVAILABLE_MODELS.map { it to it }) }
         var selectedModel by remember { mutableStateOf(service.getModelName()) }
+
+        LaunchedEffect(Unit) {
+            val models = service.fetchAvailableModels(helium314.keyboard.latin.utils.ProofreadService.AIProvider.GEMINI)
+            items = models.map { it to it }
+        }
+
         ListPreference(
             setting = setting,
             items = items,
@@ -410,9 +417,13 @@ fun createAdvancedSettings(context: Context) = listOfNotNull(
     Setting(context, SettingsWithoutKey.GROQ_MODEL, R.string.huggingface_model_title, R.string.huggingface_model_summary) { setting ->
         val ctx = LocalContext.current
         val service = remember { helium314.keyboard.latin.utils.ProofreadService(ctx) }
-        val items = helium314.keyboard.latin.utils.GroqModels.AVAILABLE_MODELS.map { it to it }
-        
+        var items by remember { mutableStateOf(helium314.keyboard.latin.utils.GroqModels.AVAILABLE_MODELS.map { it to it }) }
         var selectedModel by remember { mutableStateOf(service.getGroqModel()) }
+
+        LaunchedEffect(Unit) {
+            val models = service.fetchAvailableModels(helium314.keyboard.latin.utils.ProofreadService.AIProvider.GROQ)
+            items = models.map { it to it }
+        }
         
         ListPreference(
             setting = setting,

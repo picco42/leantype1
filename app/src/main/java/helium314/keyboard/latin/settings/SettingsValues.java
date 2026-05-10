@@ -94,6 +94,7 @@ public class SettingsValues {
         public final int mOneHandedModeGravity;
         public final float mOneHandedModeScale;
         public final boolean mNarrowKeyGaps;
+        public final int mNarrowKeyGapsLevel;
         public final String mShowMorePopupKeys;
         public final List<String> mPopupKeyTypes;
         public final List<String> mPopupKeyLabelSources;
@@ -362,6 +363,7 @@ public class SettingsValues {
                 mUseAppsDictionary = prefs.getBoolean(Settings.PREF_USE_APPS, Defaults.PREF_USE_APPS);
                 mCustomNavBarColor = prefs.getBoolean(Settings.PREF_NAVBAR_COLOR, Defaults.PREF_NAVBAR_COLOR);
                 mNarrowKeyGaps = prefs.getBoolean(Settings.PREF_NARROW_KEY_GAPS, Defaults.PREF_NARROW_KEY_GAPS);
+                mNarrowKeyGapsLevel = prefs.getInt(Settings.PREF_NARROW_KEY_GAPS_LEVEL, Defaults.PREF_NARROW_KEY_GAPS_LEVEL);
                 mSettingsValuesForSuggestion = new SettingsValuesForSuggestion(
                                 mBlockPotentiallyOffensive,
                                 prefs.getBoolean(Settings.PREF_GESTURE_SPACE_AWARE, Defaults.PREF_GESTURE_SPACE_AWARE));

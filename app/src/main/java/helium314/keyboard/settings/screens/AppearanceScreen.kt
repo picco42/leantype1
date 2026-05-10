@@ -73,6 +73,9 @@ fun AppearanceScreen(
             Settings.PREF_SPLIT_SPACER_SCALE_PREFIX else null,
         if (prefs.getBoolean(Settings.PREF_THEME_KEY_BORDERS, Defaults.PREF_THEME_KEY_BORDERS))
             Settings.PREF_NARROW_KEY_GAPS else null,
+        if (prefs.getBoolean(Settings.PREF_THEME_KEY_BORDERS, Defaults.PREF_THEME_KEY_BORDERS)
+            && prefs.getBoolean(Settings.PREF_NARROW_KEY_GAPS, Defaults.PREF_NARROW_KEY_GAPS))
+            Settings.PREF_NARROW_KEY_GAPS_LEVEL else null,
         Settings.PREF_KEYBOARD_HEIGHT_SCALE_PREFIX,
         Settings.PREF_BOTTOM_PADDING_SCALE_PREFIX,
         Settings.PREF_SIDE_PADDING_SCALE_PREFIX,
@@ -213,6 +216,25 @@ fun createAppearanceSettings(context: Context) = listOf(
     },
     Setting(context, Settings.PREF_NARROW_KEY_GAPS, R.string.prefs_narrow_key_gaps) {
         SwitchPreference(it, Defaults.PREF_NARROW_KEY_GAPS) { KeyboardSwitcher.getInstance().setThemeNeedsReload() }
+    },
+    Setting(context, Settings.PREF_NARROW_KEY_GAPS_LEVEL, R.string.prefs_narrow_key_gaps_level) { setting ->
+        SliderPreference(
+            name = setting.title,
+            key = setting.key,
+            default = Defaults.PREF_NARROW_KEY_GAPS_LEVEL,
+            range = 1f..5f,
+            stepSize = 1,
+            description = { level ->
+                when (level) {
+                    1 -> stringResource(R.string.narrowness_level_low)
+                    2 -> stringResource(R.string.narrowness_level_medium_low)
+                    3 -> stringResource(R.string.narrowness_level_medium)
+                    4 -> stringResource(R.string.narrowness_level_medium_high)
+                    5 -> stringResource(R.string.narrowness_level_high)
+                    else -> level.toString()
+                }
+            }
+        ) { KeyboardSwitcher.getInstance().setThemeNeedsReload() }
     },
     Setting(context, Settings.PREF_KEYBOARD_HEIGHT_SCALE_PREFIX, R.string.prefs_keyboard_height_scale) { setting ->
         MultiSliderPreference(

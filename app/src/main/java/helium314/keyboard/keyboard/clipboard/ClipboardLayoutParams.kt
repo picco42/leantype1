@@ -25,10 +25,32 @@ class ClipboardLayoutParams(ctx: Context) {
         val defaultKeyboardWidth = ResourceUtils.getKeyboardWidth(ctx, sv)
 
         if (sv.mNarrowKeyGaps) {
-            keyVerticalGap = res.getFraction(R.fraction.config_key_vertical_gap_holo_narrow,
-                defaultKeyboardHeight, defaultKeyboardHeight).toInt()
-            keyHorizontalGap = res.getFraction(R.fraction.config_key_horizontal_gap_holo_narrow,
-                defaultKeyboardWidth, defaultKeyboardWidth).toInt()
+            val verticalGapNarrow = res.getFraction(R.fraction.config_key_vertical_gap_holo_narrow,
+                defaultKeyboardHeight, defaultKeyboardHeight)
+            val horizontalGapNarrow = res.getFraction(R.fraction.config_key_horizontal_gap_holo_narrow,
+                defaultKeyboardWidth, defaultKeyboardWidth)
+            when (sv.mNarrowKeyGapsLevel) {
+                2 -> {
+                    keyVerticalGap = (verticalGapNarrow * 0.75f).toInt()
+                    keyHorizontalGap = (horizontalGapNarrow * 0.75f).toInt()
+                }
+                3 -> {
+                    keyVerticalGap = (verticalGapNarrow * 0.5f).toInt()
+                    keyHorizontalGap = (horizontalGapNarrow * 0.5f).toInt()
+                }
+                4 -> {
+                    keyVerticalGap = (verticalGapNarrow * 0.25f).toInt()
+                    keyHorizontalGap = (horizontalGapNarrow * 0.25f).toInt()
+                }
+                5 -> {
+                    keyVerticalGap = 0
+                    keyHorizontalGap = 0
+                }
+                else -> {
+                    keyVerticalGap = verticalGapNarrow.toInt()
+                    keyHorizontalGap = horizontalGapNarrow.toInt()
+                }
+            }
         } else {
             keyVerticalGap = res.getFraction(R.fraction.config_key_vertical_gap_holo,
                 defaultKeyboardHeight, defaultKeyboardHeight).toInt()
