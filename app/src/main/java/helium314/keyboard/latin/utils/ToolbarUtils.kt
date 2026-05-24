@@ -124,7 +124,7 @@ class TagDrawable(private val text: String) : Drawable() {
         paint.colorFilter = activeFilter
 
         // Scaled text size based on height
-        paint.textSize = bounds.height() * 0.45f
+        paint.textSize = bounds.height() * 0.37f
         
         // Draw centered text
         val textHeight = paint.descent() - paint.ascent()
