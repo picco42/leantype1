@@ -55,6 +55,8 @@ fun PreferencesScreen(
             Settings.PREF_VIBRATE_ON else null,
         if (prefs.getBoolean(Settings.PREF_VIBRATE_ON, Defaults.PREF_VIBRATE_ON))
             Settings.PREF_VIBRATION_DURATION_SETTINGS else null,
+        if (prefs.getBoolean(Settings.PREF_VIBRATE_ON, Defaults.PREF_VIBRATE_ON) && AudioAndHapticFeedbackManager.getInstance().hasAmplitudeControl())
+            Settings.PREF_VIBRATION_AMPLITUDE_SETTINGS else null,
         if (prefs.getBoolean(Settings.PREF_VIBRATE_ON, Defaults.PREF_VIBRATE_ON))
             Settings.PREF_VIBRATE_IN_DND_MODE else null,
         Settings.PREF_SOUND_ON,
@@ -194,6 +196,23 @@ fun createPreferencesSettings(context: Context) = listOf(
             },
             range = -1f..100f,
             onValueChanged = { it?.let { AudioAndHapticFeedbackManager.getInstance().vibrate(it.toLong()) } }
+        )
+    },
+    Setting(context, Settings.PREF_VIBRATION_AMPLITUDE_SETTINGS, R.string.prefs_keypress_vibration_amplitude_settings) { setting ->
+        SliderPreference(
+            name = setting.title,
+            key = setting.key,
+            default = Defaults.PREF_VIBRATION_AMPLITUDE_SETTINGS,
+            description = {
+                if (it < 0) stringResource(R.string.settings_system_default)
+                else "${it.toInt()}%"
+            },
+            range = -1f..100f,
+            onValueChanged = { it?.let {
+                val duration = context.prefs().getInt(Settings.PREF_VIBRATION_DURATION_SETTINGS, Defaults.PREF_VIBRATION_DURATION_SETTINGS)
+                val safeDuration = if (duration >= 0) duration else 15
+                AudioAndHapticFeedbackManager.getInstance().vibrate(safeDuration.toLong(), it.toInt())
+            } }
         )
     },
     Setting(context, Settings.PREF_KEYPRESS_SOUND_VOLUME, R.string.prefs_keypress_sound_volume_settings) { setting ->

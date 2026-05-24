@@ -152,6 +152,7 @@ public class SettingsValues {
         public final boolean mSuggestionStripHiddenPerUserSettings;
         public final boolean mSecondaryStripVisible;
         public final int mKeypressVibrationDuration;
+        public final int mKeypressVibrationAmplitude;
         public final float mKeypressSoundVolume;
         public final boolean mAutoCorrectionEnabledPerUserSettings;
         public final boolean mAutoCorrectEnabled;
@@ -284,6 +285,8 @@ public class SettingsValues {
                                 Defaults.PREF_KEY_LONGPRESS_TIMEOUT);
                 mKeypressVibrationDuration = prefs.getInt(Settings.PREF_VIBRATION_DURATION_SETTINGS,
                                 Defaults.PREF_VIBRATION_DURATION_SETTINGS);
+                mKeypressVibrationAmplitude = prefs.getInt(Settings.PREF_VIBRATION_AMPLITUDE_SETTINGS,
+                                Defaults.PREF_VIBRATION_AMPLITUDE_SETTINGS);
                 mKeypressSoundVolume = prefs.getFloat(Settings.PREF_KEYPRESS_SOUND_VOLUME,
                                 Defaults.PREF_KEYPRESS_SOUND_VOLUME);
                 mEnableEmojiAltPhysicalKey = prefs.getBoolean(Settings.PREF_ENABLE_EMOJI_ALT_PHYSICAL_KEY,
@@ -529,6 +532,8 @@ public class SettingsValues {
                 sb.append("" + mInputAttributes);
                 sb.append("\n   mKeypressVibrationDuration = ");
                 sb.append("" + mKeypressVibrationDuration);
+                sb.append("\n   mKeypressVibrationAmplitude = ");
+                sb.append("" + mKeypressVibrationAmplitude);
                 sb.append("\n   mKeypressSoundVolume = ");
                 sb.append("" + mKeypressSoundVolume);
                 sb.append("\n   mAutoCorrectEnabled = ");

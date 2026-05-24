@@ -760,6 +760,8 @@ language, hence "No language". -->
     <string name="day_or_night_night">Night</string>
     <!-- Title of the setting for keypress vibration duration -->
     <string name="prefs_keypress_vibration_duration_settings">Keypress vibration duration</string>
+    <!-- Title of the setting for keypress vibration strength -->
+    <string name="prefs_keypress_vibration_amplitude_settings">Keypress vibration strength</string>
     <!-- Title of the setting for keypress sound volume -->
     <string name="prefs_keypress_sound_volume_settings">Keypress sound volume</string>
     <!-- Title of the setting for key long press delay -->
@@ -870,6 +872,7 @@ New dictionary:
     <string name="user_dict_word_already_present">This word is already present in the %s user dictionary. Please type another one.</string>
     <!-- User dictionary settings. Text button to add a word -->
     <string name="user_dict_add_word_button">Add a word</string>
+    <string name="user_dict_clear_all_confirmation">Are you sure you want to clear all words from this dictionary?</string>
     <!-- Option for choosing theme style -->
     <string name="theme_style">Style</string>
     <!-- Option for choosing icon style (same options as theme_style) -->

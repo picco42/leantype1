@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import helium314.keyboard.latin.utils.CenterCropDrawable;
 import android.view.ContextThemeWrapper;
 import android.view.inputmethod.EditorInfo;
 
@@ -117,6 +118,7 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_SUGGEST_CLIPBOARD_CONTENT = "suggest_clipboard_content";
     public static final String PREF_GESTURE_INPUT = "gesture_input";
     public static final String PREF_VIBRATION_DURATION_SETTINGS = "vibration_duration_settings";
+    public static final String PREF_VIBRATION_AMPLITUDE_SETTINGS = "vibration_amplitude_settings";
     public static final String PREF_KEYPRESS_SOUND_VOLUME = "keypress_sound_volume";
     public static final String PREF_KEY_LONGPRESS_TIMEOUT = "key_longpress_timeout";
     public static final String PREF_ENABLE_EMOJI_ALT_PHYSICAL_KEY = "enable_emoji_alt_physical_key";
@@ -516,7 +518,7 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
         if (!image.isFile())
             return null;
         try {
-            sCachedBackgroundImages[index] = new BitmapDrawable(context.getResources(),
+            sCachedBackgroundImages[index] = new CenterCropDrawable(
                     BitmapFactory.decodeFile(image.getAbsolutePath()));
             return sCachedBackgroundImages[index];
         } catch (Exception e) {
