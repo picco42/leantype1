@@ -916,6 +916,12 @@ class SuggestionStripView(context: Context, attrs: AttributeSet?, defStyle: Int)
             suggestionsStrip.isVisible = true
             return
         }
+        // Clipboard/screenshot suggestions are LinearLayout roots, not TextViews —
+        // skip placeholder logic entirely so the external view is not obscured.
+        if (isExternalSuggestionVisible) {
+            suggestionsStrip.isVisible = true
+            return
+        }
         suggestionsStrip.isVisible = true
         
         val PLACEHOLDER_TAG = "PLACEHOLDER_VIEW"
