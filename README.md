@@ -70,9 +70,6 @@ This fork adds **optional AI-powered features** using Gemini, Groq, and OpenAI-c
   </tr>
 </table>
 
-> [!NOTE]
-> F-Droid is currently stuck on v3.7.6 due to baseline profile issues. For the latest version, use GitHub or Obtainium.
-
 ### 📦 Choose Your Version
 
 #### 1. Standard Version (`-standard-release.apk`)
