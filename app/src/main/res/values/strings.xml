@@ -213,6 +213,11 @@
     <!-- Preferences item for showing pinned clipboard items first -->
     <string name="clipboard_history_pinned_first">Show pinned items on top</string>
     <string name="clipboard_fold_pinned">Fold pinned items by default</string>
+    <string name="clear_clipboard_icon">Clear clipboard icon</string>
+    <string name="clear_clipboard_icon_summary">Select the icon style for the clear clipboard button</string>
+    <string name="clear_clipboard_icon_bin">Trash bin</string>
+    <string name="clear_clipboard_icon_sweep">Sweep / Clear all</string>
+    <string name="clear_clipboard_icon_legacy">Classic clipboard</string>
     <string name="clipboard_pinned">Pinned</string>
     <!-- Hint for clipboard search bar -->
     <string name="clipboard_search_hint">Search clips...</string>

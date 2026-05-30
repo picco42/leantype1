@@ -81,7 +81,8 @@ fun PreferencesScreen(
         Settings.PREF_ENABLE_CLIPBOARD_HISTORY,
         if (clipboardHistoryEnabled) Settings.PREF_CLIPBOARD_HISTORY_RETENTION_TIME else null,
         if (clipboardHistoryEnabled) Settings.PREF_CLIPBOARD_HISTORY_PINNED_FIRST else null,
-        if (clipboardHistoryEnabled) Settings.PREF_CLIPBOARD_FOLD_PINNED else null
+        if (clipboardHistoryEnabled) Settings.PREF_CLIPBOARD_FOLD_PINNED else null,
+        if (clipboardHistoryEnabled) Settings.PREF_CLEAR_CLIPBOARD_ICON else null
     )
     SearchSettingsScreen(
         onClickBack = onClickBack,
@@ -188,6 +189,22 @@ fun createPreferencesSettings(context: Context) = listOf(
     },
     Setting(context, Settings.PREF_CLIPBOARD_FOLD_PINNED, R.string.clipboard_fold_pinned) {
         SwitchPreference(it, Defaults.PREF_CLIPBOARD_FOLD_PINNED)
+    },
+    Setting(context, Settings.PREF_CLEAR_CLIPBOARD_ICON, R.string.clear_clipboard_icon) { setting ->
+        val ctx = LocalContext.current
+        val items = listOf(
+            stringResource(R.string.clear_clipboard_icon_bin) to "bin",
+            stringResource(R.string.clear_clipboard_icon_sweep) to "sweep",
+            stringResource(R.string.clear_clipboard_icon_legacy) to "legacy"
+        )
+        ListPreference(
+            setting = setting,
+            items = items,
+            default = Defaults.PREF_CLEAR_CLIPBOARD_ICON
+        ) {
+            helium314.keyboard.keyboard.internal.KeyboardIconsSet.needsReload = true
+            KeyboardSwitcher.getInstance().reloadKeyboard()
+        }
     },
     Setting(context, Settings.PREF_VIBRATION_DURATION_SETTINGS, R.string.prefs_keypress_vibration_duration_settings) { setting ->
         SliderPreference(
