@@ -104,7 +104,7 @@ fun SearchSettingsScreen(
                             .fillMaxSize(),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
                     ) {
-                        items(groups) { (titleRes, keys) ->
+                        items(groups, key = { (titleRes, _) -> titleRes ?: 0 }) { (titleRes, keys) ->
                             androidx.compose.material3.Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -247,7 +247,7 @@ fun <T: Any?> SearchScreen(
                         contentWindowInsets = WindowInsets(0)
                     ) { innerPadding ->
                         LazyColumn(contentPadding = innerPadding) {
-                            items(items) {
+                            items(items, key = { it?.toString() ?: "null" }) {
                                 itemContent(it)
                             }
                         }
