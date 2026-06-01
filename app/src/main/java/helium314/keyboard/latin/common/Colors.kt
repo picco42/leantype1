@@ -596,8 +596,9 @@ class AllColors(private val colorMap: EnumMap<ColorType, Int>, override val them
 }
 
 private fun colorFilter(color: Int, mode: BlendModeCompat = BlendModeCompat.MODULATE): ColorFilter {
-    // using !! for the color filter because null is only returned for unsupported blend modes, which are not used
-    return BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, mode)!!
+    // null is only returned for unsupported blend modes, which are not used here
+    return BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, mode)
+        ?: error("unsupported blend mode for color filter: $mode")
 }
 
 private fun pressedStateList(pressed: Int, normal: Int): ColorStateList {
