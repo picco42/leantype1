@@ -41,7 +41,6 @@ android {
         }
         create("standardOptimised") {
             dimension = "privacy"
-            applicationIdSuffix = ".optimised"
         }
         create("offline") {
             dimension = "privacy"
