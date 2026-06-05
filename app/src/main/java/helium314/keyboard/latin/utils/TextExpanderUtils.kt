@@ -93,22 +93,10 @@ object TextExpanderUtils {
             result = result.replace("%time12%", time12Str)
         }
 
-        // Resolve %day_short%
-        if (result.contains("%day_short%")) {
-            val dayShortStr = SimpleDateFormat("EEE", Locale.getDefault()).format(Date())
-            result = result.replace("%day_short%", dayShortStr)
-        }
-
         // Resolve %month%
         if (result.contains("%month%")) {
             val monthStr = SimpleDateFormat("MMMM", Locale.getDefault()).format(Date())
             result = result.replace("%month%", monthStr)
-        }
-
-        // Resolve %month_short%
-        if (result.contains("%month_short%")) {
-            val monthShortStr = SimpleDateFormat("MMM", Locale.getDefault()).format(Date())
-            result = result.replace("%month_short%", monthShortStr)
         }
 
         // Resolve %year%
@@ -131,18 +119,6 @@ object TextExpanderUtils {
             result = result.replace("%battery%", batteryStr)
         }
 
-        // Resolve %device%
-        if (result.contains("%device%")) {
-            val deviceStr = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
-            result = result.replace("%device%", deviceStr)
-        }
-
-        // Resolve %android%
-        if (result.contains("%android%")) {
-            val androidStr = android.os.Build.VERSION.RELEASE
-            result = result.replace("%android%", androidStr)
-        }
-
         // Resolve %language%
         if (result.contains("%language%")) {
             val imeManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
@@ -150,6 +126,59 @@ object TextExpanderUtils {
             val languageStr = activeSubtype?.getDisplayName(context, context.packageName, context.applicationInfo)?.toString()
                 ?: Locale.getDefault().getDisplayName(Locale.getDefault())
             result = result.replace("%language%", languageStr)
+        }
+
+        // Resolve %greeting%
+        if (result.contains("%greeting%")) {
+            val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            val greeting = when (hour) {
+                in 5..11 -> "Good morning"
+                in 12..16 -> "Good afternoon"
+                in 17..21 -> "Good evening"
+                else -> "Good night"
+            }
+            result = result.replace("%greeting%", greeting)
+        }
+
+        // Resolve %tomorrow%
+        if (result.contains("%tomorrow%")) {
+            val cal = java.util.Calendar.getInstance().apply { add(java.util.Calendar.DAY_OF_YEAR, 1) }
+            val tomorrowStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.time)
+            result = result.replace("%tomorrow%", tomorrowStr)
+        }
+
+        // Resolve %bullets% with optional count
+        if (result.contains("%bullets")) {
+            val bulletsRegex = Regex("%bullets(?:_(\\d+))?%")
+            result = bulletsRegex.replace(result) { match ->
+                val count = match.groups[1]?.value?.toIntOrNull() ?: 3
+                if (count <= 0) ""
+                else {
+                    val sb = java.lang.StringBuilder()
+                    sb.append("• %cursor%")
+                    for (i in 2..count) {
+                        sb.append("\n• ")
+                    }
+                    sb.toString()
+                }
+            }
+        }
+
+        // Resolve %list% with optional count
+        if (result.contains("%list")) {
+            val listRegex = Regex("%list(?:_(\\d+))?%")
+            result = listRegex.replace(result) { match ->
+                val count = match.groups[1]?.value?.toIntOrNull() ?: 3
+                if (count <= 0) ""
+                else {
+                    val sb = java.lang.StringBuilder()
+                    sb.append("1. %cursor%")
+                    for (i in 2..count) {
+                        sb.append("\n$i. ")
+                    }
+                    sb.toString()
+                }
+            }
         }
 
         return result

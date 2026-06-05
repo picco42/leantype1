@@ -277,16 +277,17 @@ fun TextExpanderScreen(onClickBack: () -> Unit) {
                                                 PlaceholderChip(tag = "%year%", desc = "Year (YYYY)")
                                                 PlaceholderChip(tag = "%week%", desc = "Week of year (1-53)")
                                                 PlaceholderChip(tag = "%battery%", desc = "Battery level (e.g. 85%)")
-                                                PlaceholderChip(tag = "%device%", desc = "Phone model (e.g. POCO M2)")
+                                                PlaceholderChip(tag = "%greeting%", desc = "Time-gated greeting")
+                                                PlaceholderChip(tag = "%tomorrow%", desc = "Tomorrow's date (YYYY-MM-DD)")
                                             }
                                             Column(modifier = Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                                 PlaceholderChip(tag = "%clipboard%", desc = "Clipboard content")
                                                 PlaceholderChip(tag = "%day%", desc = "Day name (e.g. Monday)")
-                                                PlaceholderChip(tag = "%day_short%", desc = "Day short (e.g. Mon)")
                                                 PlaceholderChip(tag = "%month%", desc = "Month (e.g. June)")
-                                                PlaceholderChip(tag = "%month_short%", desc = "Month short (e.g. Jun)")
-                                                PlaceholderChip(tag = "%android%", desc = "Android OS (e.g. 14)")
                                                 PlaceholderChip(tag = "%language%", desc = "Keyboard language (e.g. English)")
+                                                PlaceholderChip(tag = "%cursor%", desc = "Cursor position after expansion")
+                                                PlaceholderChip(tag = "%bullets%", desc = "Bullet list (supports e.g. %bullets_5%)")
+                                                PlaceholderChip(tag = "%list%", desc = "Numbered list (supports e.g. %list_5%)")
                                             }
                                         }
                                     }
@@ -493,9 +494,9 @@ fun TextExpanderScreen(onClickBack: () -> Unit) {
                     ) {
                         val tags = listOf(
                             "%date%", "%time%", "%time12%", "%clipboard%",
-                            "%day%", "%day_short%", "%month%", "%month_short%",
-                            "%year%", "%week%", "%battery%", "%device%", "%android%",
-                            "%language%"
+                            "%day%", "%month%", "%year%", "%week%",
+                            "%battery%", "%language%", "%cursor%", "%greeting%",
+                            "%tomorrow%", "%bullets%", "%list%"
                         )
                         tags.forEach { tag ->
                             Box(
