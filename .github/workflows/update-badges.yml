@@ -22,7 +22,7 @@ jobs:
           REPO="LeanBitLab/HeliboardL"
           
           # Latest version
-          VERSION=$(gh api repos/$REPO/releases/latest --jq '.tag_name' 2>/dev/null || echo "N/A")
+          VERSION=$(gh api repos/$REPO/releases/latest --jq '.tag_name' | sed 's/^v//' 2>/dev/null || echo "N/A")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           
           # Total downloads
