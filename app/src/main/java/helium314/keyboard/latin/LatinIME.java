@@ -1733,7 +1733,8 @@ public class LatinIME extends InputMethodService implements
         if (!hasSuggestionStripView()) return false;
         final View otpView = mOtpSuggestionManager.getOtpSuggestionView(mSuggestionStripView);
         if (otpView != null) {
-            mSuggestionStripView.setExternalSuggestionView(otpView, true);
+            // false: the OTP chip layout already has its own close button (wired in the manager)
+            mSuggestionStripView.setExternalSuggestionView(otpView, false);
             return true;
         }
         return false;

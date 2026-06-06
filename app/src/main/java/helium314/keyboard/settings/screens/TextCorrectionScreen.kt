@@ -91,6 +91,7 @@ fun TextCorrectionScreen(
         Settings.PREF_SUGGEST_SCREENSHOTS,
         if (prefs.getBoolean(Settings.PREF_SUGGEST_SCREENSHOTS, Defaults.PREF_SUGGEST_SCREENSHOTS))
             Settings.PREF_COMPRESS_SCREENSHOTS else null,
+        Settings.PREF_AUTO_READ_OTP,
         Settings.PREF_USE_CONTACTS,
         Settings.PREF_USE_APPS
     )

@@ -76,7 +76,10 @@ class OtpSuggestionManager(private val latinIME: LatinIME) {
                 latinIME,
                 smsReceiver,
                 IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION),
-                ContextCompat.RECEIVER_NOT_EXPORTED // SMS_RECEIVED is a protected system broadcast
+                // EXPORTED is required: SMS_RECEIVED is delivered by the system/telephony process
+                // (an external sender), so a NOT_EXPORTED receiver never receives it. This is safe
+                // because SMS_RECEIVED is a protected broadcast that only the system can send.
+                ContextCompat.RECEIVER_EXPORTED
             )
             isRegistered = true
         } catch (e: Exception) {
