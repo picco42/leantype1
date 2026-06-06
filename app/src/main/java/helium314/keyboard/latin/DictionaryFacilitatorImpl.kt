@@ -7,6 +7,7 @@ package helium314.keyboard.latin
 
 import android.Manifest
 import android.content.Context
+import android.content.SharedPreferences
 import android.provider.UserDictionary
 import android.util.LruCache
 import helium314.keyboard.keyboard.Keyboard
@@ -60,6 +61,8 @@ import java.util.concurrent.TimeUnit
  */
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DictionaryFacilitatorImpl : DictionaryFacilitator {
+    private var mPrefs: SharedPreferences? = null
+    private var mEnabledDictionariesState: Map<String, Boolean> = emptyMap()
     private var dictionaryGroups = listOf(DictionaryGroup())
 
     @Volatile
@@ -133,6 +136,14 @@ class DictionaryFacilitatorImpl : DictionaryFacilitator {
     }
 
     override fun usesSameSettings(locales: List<Locale>, contacts: Boolean, apps: Boolean, personalization: Boolean): Boolean {
+        val prefs = mPrefs
+        if (prefs != null) {
+            val currentPrefs = prefs.all.filterKeys { it.startsWith("pref_dict_enabled_") }
+                .mapValues { it.value as? Boolean ?: true }
+            if (currentPrefs != mEnabledDictionariesState) {
+                return false
+            }
+        }
         val dictGroup = dictionaryGroups[0] // settings are the same for all groups
         return contacts == dictGroup.hasDict(Dictionary.TYPE_CONTACTS)
                 && apps == dictGroup.hasDict(Dictionary.TYPE_APPS)
@@ -154,6 +165,10 @@ class DictionaryFacilitatorImpl : DictionaryFacilitator {
         listener: DictionaryInitializationListener?
     ) {
         Log.i(TAG, "resetDictionaries, force reloading main dictionary: $forceReloadMainDictionary")
+        val prefs = context.prefs()
+        mPrefs = prefs
+        mEnabledDictionariesState = prefs.all.filterKeys { it.startsWith("pref_dict_enabled_") }
+            .mapValues { it.value as? Boolean ?: true }
 
         // Initialize session word boost with context if not yet done
         if (sessionWordBoost == null) {
