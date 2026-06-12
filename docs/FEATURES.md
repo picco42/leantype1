@@ -269,7 +269,7 @@ Offline proofreading runs entirely on your device using the `llama.cpp` runtime.
 
 > [!NOTE]
 > **Status: Beta / Experimental**
-> Running large language models on device requires a modern smartphone with sufficient RAM (typically 6GB+). We recommend using highly quantized, compact GGUF models (e.g. Q4_K_M or IQ4_NL) for the best balance of speed, accuracy, and memory usage.
+> Running large language models on device requires a modern smartphone with sufficient RAM (typically 6GB+). We recommend using highly quantized, compact GGUF models (e.g. Q4_K_M or IQ4_NL) for the best balance of speed, accuracy, and memory usage. The overall accuracy of proofreading and translations will depend entirely on the capabilities of the specific model you choose.
 
 ### Setup Instructions
 
