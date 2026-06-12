@@ -430,6 +430,17 @@ class ProofreadService(private val context: Context) {
                 }
             }
             
+            // Truncate at the first occurrence of subsequent template markers
+            val markers = listOf("\nInput:", "\nInstruction:", "\nOutput:", "\nCorrected:", "Input:", "Instruction:", "Output:", "Corrected:")
+            for (marker in markers) {
+                val idx = cleanedOutput.indexOf(marker, ignoreCase = true)
+                if (idx != -1) {
+                    if (marker.startsWith("\n") || idx > 0) {
+                        cleanedOutput = cleanedOutput.substring(0, idx).trim()
+                    }
+                }
+            }
+            
             // Also strip common prefixes that the model might generate or echo
             val prefixesToStrip = listOf(
                 "Output:", "Corrected:", "Translation:", "Response:", "Result:",
@@ -523,7 +534,8 @@ class ProofreadService(private val context: Context) {
                 "top_p" to topP.toDouble(),
                 "top_k" to topK,
                 "min_p" to minP.toDouble(),
-                "n_predict" to maxTokens
+                "n_predict" to maxTokens,
+                "stop" to listOf("\nInput:", "\nInstruction:", "\nOutput:", "\nCorrected:")
             )
 
             // Get completionJob field
