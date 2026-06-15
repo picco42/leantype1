@@ -75,14 +75,11 @@ fun LoadHandwritingPluginPreference(
                     showDialog = false
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                         .addCategory(Intent.CATEGORY_OPENABLE)
-                        .setType("application/vnd.android.package-archive")
+                        .setType("*/*")
                     try {
                         launcher.launch(intent)
                     } catch (e: Exception) {
-                        try {
-                            intent.type = "*/*"
-                            launcher.launch(intent)
-                        } catch (_: Exception) {}
+                        // ignore
                     }
                 }
             }
