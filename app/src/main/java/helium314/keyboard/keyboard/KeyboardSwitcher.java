@@ -816,6 +816,8 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
             return mEmojiPalettesView;
         } else if (isShowingClipboardHistory()) {
             return mClipboardHistoryView;
+        } else if (isHandwritingShowing()) {
+            return mHandwritingView;
         }
         return mKeyboardView;
     }

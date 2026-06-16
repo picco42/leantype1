@@ -44,6 +44,7 @@ class KeyboardIconsSet private constructor() {
         }
         val baseIds = defaultIds.toMutableMap().apply {
             put(ToolbarKey.CLEAR_CLIPBOARD.name.lowercase(Locale.US), clearClipboardResId)
+            put("clear_handwriting", R.drawable.ic_close)
         }
         val overrideIds = customIconIds(context, prefs)
         val ids = if (overrideIds.isEmpty()) baseIds else baseIds + overrideIds

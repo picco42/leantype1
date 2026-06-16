@@ -17,6 +17,7 @@ import helium314.keyboard.latin.R
 import helium314.keyboard.latin.RichInputConnection
 import helium314.keyboard.keyboard.internal.keyboard_parser.floris.KeyCode
 import helium314.keyboard.latin.common.Constants
+import helium314.keyboard.latin.common.ColorType
 import helium314.keyboard.latin.settings.Settings
 import helium314.keyboard.latin.utils.Log
 import helium314.keyboard.latin.SuggestedWords
@@ -25,6 +26,8 @@ import helium314.keyboard.latin.dictionary.Dictionary
 import android.view.inputmethod.EditorInfo
 import helium314.keyboard.keyboard.KeyboardSwitcher
 import helium314.keyboard.event.HapticEvent
+import helium314.keyboard.latin.RichInputMethodManager
+import helium314.keyboard.latin.utils.LanguageOnSpacebarUtils
 
 class HandwritingView @JvmOverloads constructor(
     context: Context,
@@ -61,6 +64,7 @@ class HandwritingView @JvmOverloads constructor(
 
         canvas.onRecognitionTriggered = { strokes ->
             performRecognition(strokes)
+            canvas.clear()
         }
     }
 
@@ -73,6 +77,17 @@ class HandwritingView @JvmOverloads constructor(
         this.keyboardActionListener = keyboardActionListener
         this.currentLanguage = language
 
+        val colors = Settings.getValues().mColors
+        val toolbar = findViewById<View>(R.id.handwriting_toolbar)
+        if (toolbar != null) {
+            colors.setBackground(toolbar, ColorType.MAIN_BACKGROUND)
+        }
+        colors.setBackground(canvas, ColorType.MAIN_BACKGROUND)
+
+        languageLabel.setTextColor(colors.get(ColorType.KEY_TEXT))
+        colors.setColor(clearButton, ColorType.KEY_ICON)
+        canvas.setStrokeColor(colors.get(ColorType.KEY_TEXT))
+
         languageLabel.text = language
 
         // Setup bottom row keyboard
@@ -82,8 +97,16 @@ class HandwritingView @JvmOverloads constructor(
         try {
             PointerTracker.switchTo(bottomRowKeyboard)
             val kls = KeyboardLayoutSet.Builder.buildEmojiClipBottomRow(context, editorInfo)
-            val keyboard = kls.getKeyboard(KeyboardId.ELEMENT_EMOJI_BOTTOM_ROW)
+            val keyboard = kls.getKeyboard(KeyboardId.ELEMENT_HANDWRITING_BOTTOM_ROW)
             bottomRowKeyboard.setKeyboard(keyboard)
+
+            val languageOnSpacebarFormatType = LanguageOnSpacebarUtils.getLanguageOnSpacebarFormatType(keyboard.mId.mSubtype)
+            val hasMultipleEnabledIMEsOrSubtypes = RichInputMethodManager.getInstance().hasMultipleEnabledIMEsOrSubtypes(true)
+            bottomRowKeyboard.startDisplayLanguageOnSpacebar(
+                true,
+                languageOnSpacebarFormatType,
+                hasMultipleEnabledIMEsOrSubtypes
+            )
         } catch (e: Exception) {
             Log.e("HandwritingView", "Failed to setup bottom row keyboard", e)
         }
@@ -179,10 +202,19 @@ class HandwritingView @JvmOverloads constructor(
 
                 mainHandler.post {
                     val mainCandidate = results[0]
-                    currentComposingText = mainCandidate
 
                     val latinIME = KeyboardSwitcher.getInstance().latinIME ?: return@post
                     val ic = latinIME.currentInputConnection ?: return@post
+
+                    if (currentComposingText.isNotEmpty()) {
+                        ic.finishComposingText()
+                        val textBefore = ic.getTextBeforeCursor(1, 0)
+                        if (textBefore != null && textBefore.isNotEmpty() && textBefore != " " && textBefore != "\n") {
+                            ic.commitText(" ", 1)
+                        }
+                    }
+
+                    currentComposingText = mainCandidate
 
                     // Update composing text
                     ic.setComposingText(mainCandidate, 1)
@@ -236,6 +268,10 @@ class HandwritingView @JvmOverloads constructor(
         if (primaryCode == KeyCode.ALPHA) {
             // Close handwriting mode
             KeyboardSwitcher.getInstance().setAlphabetKeyboard()
+            return
+        }
+        if (primaryCode == KeyCode.CLEAR_HANDWRITING) {
+            clearCanvasAndComposition()
             return
         }
         

@@ -38,6 +38,7 @@ object Defaults {
         LayoutType.PHONE_SYMBOLS -> "phone_symbols"
         LayoutType.EMOJI_BOTTOM -> "emoji_bottom_row"
         LayoutType.CLIPBOARD_BOTTOM -> "clip_bottom_row"
+        LayoutType.HANDWRITING_BOTTOM -> "handwriting_bottom_row"
     }
     
     const val PREF_SPLIT_TOOLBAR = false
