@@ -1797,6 +1797,7 @@ public class LatinIME extends InputMethodService implements
     @Override
     public void removeSuggestion(final String word) {
         mDictionaryFacilitator.removeWord(word);
+        mInputLogic.getSuggest().clearNextWordSuggestionsCache();
     }
 
     public DictionaryFacilitator getDictionaryFacilitator() {

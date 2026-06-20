@@ -902,11 +902,22 @@ private class DictionaryGroup(
 
     private val blacklist = hashSetOf<String>().apply {
         val file = blacklistFile
-        if (file?.isFile != true) return@apply
+        if (file == null) return@apply
         scope.launch {
             synchronized(blacklistLock) {
                 try {
-                    addAll(file.readLines().map { it.lowercase(locale) })
+                    val loadedWords = mutableSetOf<String>()
+                    if (file.isFile) {
+                        loadedWords.addAll(file.readLines().map { it.lowercase(locale) })
+                    }
+                    val langTag = locale.toLanguageTag()
+                    if (locale.language.isNotEmpty() && locale.language != langTag) {
+                        val baseFile = File(file.parentFile, "${locale.language}.txt")
+                        if (baseFile.isFile) {
+                            loadedWords.addAll(baseFile.readLines().map { it.lowercase(locale) })
+                        }
+                    }
+                    addAll(loadedWords)
                     rebuildCompiledPatterns()
                 } catch (e: IOException) {
                     Log.e(TAG, "Exception while trying to read blacklist from ${file.name}", e)
@@ -932,6 +943,12 @@ private class DictionaryGroup(
                 try {
                     if (file.isDirectory) file.delete()
                     file.appendText("$lowercase\n")
+                    val langTag = locale.toLanguageTag()
+                    if (locale.language.isNotEmpty() && locale.language != langTag) {
+                        val baseFile = File(file.parentFile, "${locale.language}.txt")
+                        if (baseFile.isDirectory) baseFile.delete()
+                        baseFile.appendText("$lowercase\n")
+                    }
                 } catch (e: IOException) {
                     Log.e(TAG, "Exception while trying to add word \"$lowercase\" to blacklist ${file.name}", e)
                 }
@@ -949,10 +966,22 @@ private class DictionaryGroup(
         scope.launch {
             synchronized(blacklistLock) {
                 try {
-                    val newLines = file.readLines().filterNot { it.lowercase(locale) == lowercase }
-                    file.writeText(newLines.joinToString("\n"))
+                    val files = mutableListOf(file)
+                    val langTag = locale.toLanguageTag()
+                    if (locale.language.isNotEmpty() && locale.language != langTag) {
+                        files.add(File(file.parentFile, "${locale.language}.txt"))
+                    }
+                    for (f in files) {
+                        if (f.isFile) {
+                            val lines = f.readLines()
+                            val newLines = lines.filterNot { it.lowercase(locale) == lowercase }
+                            if (newLines.size != lines.size) {
+                                f.writeText(newLines.joinToString("\n") + if (newLines.isEmpty()) "" else "\n")
+                            }
+                        }
+                    }
                 } catch (e: IOException) {
-                    Log.e(TAG, "Exception while trying to remove word \"$word\" to blacklist ${file.name}", e)
+                    Log.e(TAG, "Exception while trying to remove word \"$word\" from blacklist ${file.name}", e)
                 }
             }
         }
@@ -960,7 +989,7 @@ private class DictionaryGroup(
 
     fun reloadBlacklist() {
         val file = blacklistFile
-        if (file == null || !file.isFile) {
+        if (file == null) {
             synchronized(blacklistLock) {
                 blacklist.clear()
                 rebuildCompiledPatterns()
@@ -971,7 +1000,18 @@ private class DictionaryGroup(
             synchronized(blacklistLock) {
                 try {
                     blacklist.clear()
-                    blacklist.addAll(file.readLines().map { it.lowercase(locale) })
+                    val loadedWords = mutableSetOf<String>()
+                    if (file.isFile) {
+                        loadedWords.addAll(file.readLines().map { it.lowercase(locale) })
+                    }
+                    val langTag = locale.toLanguageTag()
+                    if (locale.language.isNotEmpty() && locale.language != langTag) {
+                        val baseFile = File(file.parentFile, "${locale.language}.txt")
+                        if (baseFile.isFile) {
+                            loadedWords.addAll(baseFile.readLines().map { it.lowercase(locale) })
+                        }
+                    }
+                    blacklist.addAll(loadedWords)
                     rebuildCompiledPatterns()
                 } catch (e: IOException) {
                     Log.e(TAG, "Exception while trying to read blacklist from ${file.name}", e)

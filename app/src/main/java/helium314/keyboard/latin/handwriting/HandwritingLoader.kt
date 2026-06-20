@@ -57,6 +57,18 @@ object HandwritingLoader {
         return context.prefs().getBoolean(PREF_HAS_PLUGIN, false)
     }
 
+    fun getPluginVersion(context: Context): String? {
+        val apkFile = File(context.filesDir, PLUGIN_FILENAME)
+        if (!apkFile.exists()) return null
+        return try {
+            val info = context.packageManager.getPackageArchiveInfo(apkFile.absolutePath, 0)
+            info?.versionName
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+
     fun importPlugin(context: Context, uri: Uri): Boolean {
         try {
             try {
