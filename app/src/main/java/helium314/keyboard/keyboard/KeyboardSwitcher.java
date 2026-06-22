@@ -366,6 +366,7 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
             }
             mHandwritingView.setVisibility(View.GONE);
         }
+
         
         if (PointerTracker.sPersistentTouchpadModeActive) {
             if (mTouchpadView != null) {

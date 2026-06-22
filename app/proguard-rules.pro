@@ -27,6 +27,8 @@
 
 # Keep java-llama.cpp classes
 -keep class de.kherud.llama.** { *; }
+-keep class org.nehuatl.llamacpp.** { *; }
+
 
 
 # Fix correct service name
