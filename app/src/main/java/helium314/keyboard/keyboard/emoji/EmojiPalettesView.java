@@ -917,7 +917,8 @@ public final class EmojiPalettesView extends LinearLayout
         if (mPager != null && mPager.getAdapter() != null) {
             mPager.getAdapter().notifyItemChanged(mEmojiCategory.getRecentTabId());
         }
-        if (split) {
+        // ponytail: only update suggestion bar if the emoji view is actually visible
+        if (split && isShown()) {
             populateSuggestionBarWithRecents();
         }
     }
@@ -937,7 +938,8 @@ public final class EmojiPalettesView extends LinearLayout
         if (mPager != null && mPager.getAdapter() != null) {
             mPager.getAdapter().notifyItemChanged(mEmojiCategory.getRecentTabId());
         }
-        if (split) {
+        // ponytail: only update suggestion bar if the emoji view is actually visible
+        if (split && isShown()) {
             populateSuggestionBarWithRecents();
         }
     }
