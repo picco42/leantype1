@@ -36,20 +36,6 @@ This fork adds **optional AI-powered features** using Gemini, Groq, and OpenAI-c
 
 
 
-## Screenshots
-
-<table>
-  <tr>
-    <td><img src="docs/images/1.png" height="500" alt="Screenshot 1"/></td>
-    <td><img src="docs/images/2.png" height="500" alt="Screenshot 2"/></td>
-    <td><img src="docs/images/3.png" height="500" alt="Screenshot 3"/></td>
-    <td><img src="docs/images/4.png" height="500" alt="Screenshot 4"/></td>
-    <td><img src="docs/images/5.png" height="500" alt="Screenshot 5"/></td>
-    <td><img src="docs/images/6.png" height="500" alt="Screenshot 6"/></td>
-  </tr>
-</table>
-
-
 ## Download
 
 <table border="0">
@@ -76,6 +62,21 @@ This fork adds **optional AI-powered features** using Gemini, Groq, and OpenAI-c
 -->
 
 > **⚠️ Note:** F-Droid releases might be delayed or stuck again due to reproducibility verification issues. For the latest version, use GitHub Releases or Obtainium.
+
+
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="docs/images/1.png" height="500" alt="Screenshot 1"/></td>
+    <td><img src="docs/images/2.png" height="500" alt="Screenshot 2"/></td>
+    <td><img src="docs/images/3.png" height="500" alt="Screenshot 3"/></td>
+    <td><img src="docs/images/4.png" height="500" alt="Screenshot 4"/></td>
+    <td><img src="docs/images/5.png" height="500" alt="Screenshot 5"/></td>
+    <td><img src="docs/images/6.png" height="500" alt="Screenshot 6"/></td>
+  </tr>
+</table>
+
 
 ### 📦 Choose Your Version
 
