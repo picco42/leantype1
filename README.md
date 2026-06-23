@@ -17,24 +17,24 @@
 - **[🤖 Multi-Provider AI](docs/FEATURES.md#supported-ai-providers)** - Proofread using **Gemini**, **Groq** (Llama 3, Mixtral), or **OpenAI-compatible** providers. Supports dynamic fetching of latest models directly from providers.
 - **[🛡️ Offline AI (GGUF)](docs/FEATURES.md#5-offline-proofreading-privacy-focused)** - Private, on-device proofreading and translation using local **GGUF models** powered by `llama.cpp` (Offline build only).
 - **🌐 AI Translation** - Translate selected text directly using your chosen AI provider, with a separate model selector.
-- **[✍️ Handwriting Input](docs/FEATURES.md#8-handwriting-input)** - Draw characters directly on a handwriting recognition canvas (Standard version, requires [Leantype-Handwriting-Plugin](https://github.com/LeanBitLab/Leantype-Handwriting-Plugin)).
 - **[🧠 Custom AI Keys](docs/FEATURES.md#4-custom-ai-keys--keywords)** - Assign custom prompts, personas (#editor, #proofread), and custom text labels/tags (showing as themed capsules) to 10 customizable toolbar keys.
+- **[✍️ Handwriting Input](docs/FEATURES.md#8-handwriting-input)** - Draw characters directly on a handwriting recognition canvas (Standard version, requires [Leantype-Handwriting-Plugin](https://github.com/LeanBitLab/Leantype-Handwriting-Plugin)).
+- **🖱️ Touchpad Mode** - Swipe spacebar up to toggle touchpad with custom sensitivity controls, including full-screen laptop-style touchpad mode.
 - **📝 Text Expander** - Built-in expansion tool supporting custom shortcuts and dynamic template variables (date, time, clipboard, custom placeholders).
 - **🪟 Floating Keyboard** - Detach the keyboard into a draggable window for seamless multitasking. Includes a persistent mode option to keep the keyboard floating.
 - **⌨️ Dual Toolbar / Split Suggestions** - Option to split suggestions and toolbar for easier access.
-- **🖱️ Touchpad Mode** - Swipe spacebar up to toggle touchpad with custom sensitivity controls, including full-screen laptop-style touchpad mode.
-- **🎨 Modern UI** - "Squircle" key backgrounds, refined icons, and polished aesthetics.
-- **🔄 Google Dictionary Import** - Easily import your personal dictionary words.
 - **📥 Dynamic Downloader** - Standard version dynamically downloads layout dictionaries, emoji dictionaries, and handwriting plugins on demand, keeping initial app size small.
-- **💾 Selective Backup & Restore** - Backup and restore settings, dictionaries, and AI prompt configurations selectively.
-- **🚫 Blocked Words Blacklist** - Prevent unwanted words from being suggested, with custom regex pattern support and a blacklist management screen.
-- **✉️ Auto-Read OTP** - Automatically reads OTP codes from SMS notifications for quick and easy suggestion strip entry.
-- **⚙️ Enhanced Customization** - Force auto-capitalization toggle, reorganized settings, and more.
-- **🕵️ Clear Incognito Mode** - Distinct "Hat & Glasses" icon for clear visibility.
 - **🔍 Clipboard Search & Undo** - Search through your clipboard history directly from the toolbar, undo accidental item deletions, and fold/collapse pinned items by default to save space.
 - **📸 Screenshot Suggestion & Clipboard** - Suggests recently taken screenshots for quick sharing via the suggestion strip and saves them to your clipboard history.
 - **🔎 Emoji Search** - Search for emojis by name. *Requires loading an Emoji Dictionary.*
+- **🚫 Blocked Words Blacklist** - Prevent unwanted words from being suggested, with custom regex pattern support and a blacklist management screen.
+- **✉️ Auto-Read OTP** - Automatically reads OTP codes from SMS notifications for quick and easy suggestion strip entry.
+- **💾 Selective Backup & Restore** - Backup and restore settings, dictionaries, and AI prompt configurations selectively.
 - **🔒 Privacy Choices** - Choose **Standard** (Opt-in AI, Handwriting), **Offline** (Hard-disabled network, offline GGUF model load), or **Offline Lite** (Minimalist, no AI) versions.
+- **🎨 Modern UI** - "Squircle" key backgrounds, refined icons, and polished aesthetics.
+- **🕵️ Clear Incognito Mode** - Distinct "Hat & Glasses" icon for clear visibility.
+- **🔄 Google Dictionary Import** - Easily import your personal dictionary words.
+- **⚙️ Enhanced Customization** - Force auto-capitalization toggle, reorganized settings, and more.
 
 
 
