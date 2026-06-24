@@ -67,7 +67,7 @@ import helium314.keyboard.latin.utils.showMissingDictionaryComposeDialog
 import helium314.keyboard.latin.utils.SubtypeSettings
 import helium314.keyboard.latin.utils.locale
 import helium314.keyboard.settings.SettingsWithoutKey
-import java.util.concurrent.atomic.AtomicBoolean
+
 import kotlin.math.min
 
 @SuppressLint("InflateParams")
@@ -649,30 +649,21 @@ class SuggestionStripView(context: Context, attrs: AttributeSet?, defStyle: Int)
                 return true
             }
             Settings.getValues().mColors.setColor(icon, ColorType.REMOVE_SUGGESTION_ICON)
-            val w = icon.intrinsicWidth
-            val h = icon.intrinsicHeight
             wordView.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null)
             wordView.ellipsize = TextUtils.TruncateAt.END
-            val downOk = AtomicBoolean(false)
-            wordView.setOnTouchListener { _, motionEvent ->
-                if (motionEvent.action == MotionEvent.ACTION_UP && downOk.get()) {
-                    val x = motionEvent.x
-                    val y = motionEvent.y
-                    if (0 < x && x < w && 0 < y && y < h) {
-                        removeSuggestion(wordView)
-                        wordView.cancelLongPress()
-                        wordView.isPressed = false
-                        return@setOnTouchListener true
-                    }
-                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    val x = motionEvent.x
-                    val y = motionEvent.y
-                    if (0 < x && x < w && 0 < y && y < h) {
-                        downOk.set(true)
-                    }
-                }
-                false
+            // ponytail: entire word view is now the delete target, not just the tiny icon
+            val savedTag = wordView.tag
+            // Replace click listener to delete on any tap
+            wordView.setOnClickListener {
+                removeSuggestion(wordView)
             }
+            // Auto-dismiss delete mode after 3s, restore normal behavior
+            wordView.postDelayed({
+                wordView.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+                wordView.setOnTouchListener(null)
+                wordView.tag = savedTag
+                wordView.setOnClickListener(this)
+            }, 3000)
         }
         if (DebugFlags.DEBUG_ENABLED && (isShowingMoreSuggestionPanel || !showMoreSuggestions())) {
             showSourceDict(wordView)
