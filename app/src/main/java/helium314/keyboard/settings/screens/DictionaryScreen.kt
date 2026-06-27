@@ -363,7 +363,23 @@ fun DictionaryScreen(
 fun getUserAndInternalDictionaries(context: Context, locale: Locale): Pair<List<File>, Boolean> {
     val userDicts = mutableListOf<File>()
     var hasInternalDict = false
-    val userLocaleDir = DictionaryInfoUtils.getCacheDirectoryForLocale(locale, context)?.let { File(it) }
+    
+    var userLocaleDir = DictionaryInfoUtils.getCacheDirectoryForLocale(locale, context)?.let { File(it) }
+    var hasFiles = userLocaleDir?.exists() == true && userLocaleDir.isDirectory && userLocaleDir.listFiles()?.any {
+        it.name.endsWith(DictionaryInfoUtils.USER_DICTIONARY_SUFFIX) || it.name.startsWith(DictionaryInfoUtils.MAIN_DICT_PREFIX) || it.name == DictionaryInfoUtils.MAIN_DICT_FILE_NAME
+    } == true
+
+    if (!hasFiles && (locale.country.isNotEmpty() || locale.variant.isNotEmpty())) {
+        val fallbackLocale = Locale(locale.language)
+        val fallbackDir = DictionaryInfoUtils.getCacheDirectoryForLocale(fallbackLocale, context)?.let { File(it) }
+        val hasFallbackFiles = fallbackDir?.exists() == true && fallbackDir.isDirectory && fallbackDir.listFiles()?.any {
+            it.name.endsWith(DictionaryInfoUtils.USER_DICTIONARY_SUFFIX) || it.name.startsWith(DictionaryInfoUtils.MAIN_DICT_PREFIX) || it.name == DictionaryInfoUtils.MAIN_DICT_FILE_NAME
+        } == true
+        if (hasFallbackFiles) {
+            userLocaleDir = fallbackDir
+        }
+    }
+
     if (userLocaleDir?.exists() == true && userLocaleDir.isDirectory) {
         userLocaleDir.listFiles()?.forEach {
             if (it.name.endsWith(DictionaryInfoUtils.USER_DICTIONARY_SUFFIX))
