@@ -64,7 +64,6 @@ fun createToolbarKey(context: Context, key: ToolbarKey): ImageButton {
     button.tag = key
     button.contentDescription = key.name.lowercase().getStringResourceOrName("", context)
     button.setBackgroundResource(R.drawable.toolbar_key_background)
-    setToolbarButtonActivatedState(button)
     
     val index = if (key.name.startsWith("CUSTOM_AI_")) {
         key.name.removePrefix("CUSTOM_AI_").toIntOrNull()
@@ -87,6 +86,7 @@ fun createToolbarKey(context: Context, key: ToolbarKey): ImageButton {
         rawDrawable
     }
     button.setImageDrawable(finalDrawable)
+    setToolbarButtonActivatedState(button)
     return button
 }
 
@@ -200,10 +200,14 @@ fun setToolbarButtonActivatedState(button: ImageButton) {
     val colors = Settings.getValues().mColors
     if (activated && button.tag in listOf(INCOGNITO, ONE_HANDED, SPLIT, AUTOCORRECT)) {
         colors.setColor(button.background, ColorType.TOOL_BAR_KEY_ENABLED_BACKGROUND)
-        colors.setColor(button, ColorType.ACTION_KEY_ICON)
+        if (button.drawable != null) {
+            colors.setColor(button, ColorType.ACTION_KEY_ICON)
+        }
     } else {
         colors.setColor(button.background, ColorType.TOOL_BAR_EXPAND_KEY_BACKGROUND)
-        colors.setColor(button, ColorType.TOOL_BAR_KEY)
+        if (button.drawable != null) {
+            colors.setColor(button, ColorType.TOOL_BAR_KEY)
+        }
     }
 }
 
