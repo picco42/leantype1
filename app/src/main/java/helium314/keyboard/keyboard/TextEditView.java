@@ -265,44 +265,77 @@ public class TextEditView extends LinearLayout {
         mListener = listener;
     }
 
+    private int getContrastingColor(int bgColor) {
+        double luminance = androidx.core.graphics.ColorUtils.calculateLuminance(bgColor);
+        return luminance > 0.5 ? 0xFF222222 : 0xFFFAFAFA;
+    }
+
     public void applyColors(Colors colors) {
         colors.setBackground(this, ColorType.MAIN_BACKGROUND);
 
-        int keyTextColor = colors.get(ColorType.KEY_TEXT);
-        int functionalKeyTextColor = colors.get(ColorType.FUNCTIONAL_KEY_TEXT);
-        int keyIconColor = colors.get(ColorType.KEY_ICON);
+        int baseBg = colors.get(ColorType.FUNCTIONAL_KEY_BACKGROUND);
+        int normalBg = colors.get(ColorType.KEY_BACKGROUND);
+        int spaceBg = colors.get(ColorType.SPACE_BAR_BACKGROUND);
+        int actionBg = colors.get(ColorType.ACTION_KEY_BACKGROUND);
 
-        // Apply background and text colors to Action Buttons
-        setKeyStyle(mBtnUndo, colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyTextColor);
-        setKeyStyle(mBtnSelect, colors, mSelectionMode ? ColorType.ACTION_KEY_BACKGROUND : ColorType.FUNCTIONAL_KEY_BACKGROUND, mSelectionMode ? functionalKeyTextColor : keyTextColor);
-        setKeyStyle(mBtnCut, colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyTextColor);
-        setKeyStyle(mBtnCopy, colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyTextColor);
-        setKeyStyle(mBtnPaste, colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyTextColor);
+        // Compute custom color variants for different types of functions
+        // 1. Clipboard operations (Select, Cut, Copy, Paste): Blue-tinted functional background
+        int clipboardBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFF2196F3, 0.15f);
+        int selectBg = mSelectionMode ? actionBg : clipboardBg;
+        int clipboardTextColor = getContrastingColor(clipboardBg);
+        int selectTextColor = getContrastingColor(selectBg);
+
+        // 2. Text manipulation (Undo, Backspace): Orange-tinted functional background
+        int editBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFFFF9800, 0.15f);
+        int editTextColor = getContrastingColor(editBg);
+
+        // 3. Navigation controls (Home, End, Word Left, Word Right): Green-tinted functional background
+        int navBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFF4CAF50, 0.12f);
+        int navTextColor = getContrastingColor(navBg);
+
+        // 4. System / Close button: Red-tinted functional background
+        int closeBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFFF44336, 0.15f);
+        int closeTextColor = getContrastingColor(closeBg);
+
+        // 5. Arrow Keys (Up, Down, Left, Right): Standard key background
+        int arrowBg = normalBg;
+        int arrowTextColor = getContrastingColor(arrowBg);
+
+        // 6. Space Bar: Space bar background
+        int spaceBtnBg = spaceBg;
+        int spaceTextColor = getContrastingColor(spaceBtnBg);
+
+        // Apply background and text/icon colors to Action Buttons
+        setKeyStyle(mBtnUndo, editBg, editTextColor);
+        setKeyStyle(mBtnSelect, selectBg, selectTextColor);
+        setKeyStyle(mBtnCut, clipboardBg, clipboardTextColor);
+        setKeyStyle(mBtnCopy, clipboardBg, clipboardTextColor);
+        setKeyStyle(mBtnPaste, clipboardBg, clipboardTextColor);
 
         // Retrieve theme-aware icons
         KeyboardSwitcher switcher = KeyboardSwitcher.getInstance();
         KeyboardIconsSet iconsSet = (switcher != null && switcher.getKeyboard() != null) ? switcher.getKeyboard().mIconsSet : null;
 
-        setIconKeyStyle(mBtnClose, iconsSet, "close_history", colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnHome, iconsSet, "page_start", colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnWordLeft, iconsSet, "word_left", colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnArrowUp, iconsSet, "up", colors, ColorType.KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnWordRight, iconsSet, "word_right", colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnEnd, iconsSet, "page_end", colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnBackspace, iconsSet, "delete_key", colors, ColorType.FUNCTIONAL_KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnArrowLeft, iconsSet, "left", colors, ColorType.KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnArrowDown, iconsSet, "down", colors, ColorType.KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnArrowRight, iconsSet, "right", colors, ColorType.KEY_BACKGROUND, keyIconColor);
-        setIconKeyStyle(mBtnSpace, iconsSet, "space_key_for_number_layout", colors, ColorType.SPACE_BAR_BACKGROUND, keyIconColor);
+        setIconKeyStyle(mBtnClose, iconsSet, "close_history", closeBg, closeTextColor);
+        setIconKeyStyle(mBtnHome, iconsSet, "page_start", navBg, navTextColor);
+        setIconKeyStyle(mBtnWordLeft, iconsSet, "word_left", navBg, navTextColor);
+        setIconKeyStyle(mBtnArrowUp, iconsSet, "up", arrowBg, arrowTextColor);
+        setIconKeyStyle(mBtnWordRight, iconsSet, "word_right", navBg, navTextColor);
+        setIconKeyStyle(mBtnEnd, iconsSet, "page_end", navBg, navTextColor);
+        setIconKeyStyle(mBtnBackspace, iconsSet, "delete_key", editBg, editTextColor);
+        setIconKeyStyle(mBtnArrowLeft, iconsSet, "left", arrowBg, arrowTextColor);
+        setIconKeyStyle(mBtnArrowDown, iconsSet, "down", arrowBg, arrowTextColor);
+        setIconKeyStyle(mBtnArrowRight, iconsSet, "right", arrowBg, arrowTextColor);
+        setIconKeyStyle(mBtnSpace, iconsSet, "space_key_for_number_layout", spaceBtnBg, spaceTextColor);
     }
 
-    private void setKeyStyle(TextView textView, Colors colors, ColorType bgType, int textColor) {
-        textView.setBackground(createKeyBackground(colors, bgType));
+    private void setKeyStyle(TextView textView, int bgColor, int textColor) {
+        textView.setBackground(createKeyBackground(bgColor));
         textView.setTextColor(textColor);
     }
 
-    private void setIconKeyStyle(ImageView imageView, KeyboardIconsSet iconsSet, String iconName, Colors colors, ColorType bgType, int iconColor) {
-        imageView.setBackground(createKeyBackground(colors, bgType));
+    private void setIconKeyStyle(ImageView imageView, KeyboardIconsSet iconsSet, String iconName, int bgColor, int iconColor) {
+        imageView.setBackground(createKeyBackground(bgColor));
         if (iconsSet != null) {
             Drawable icon = iconsSet.getIconDrawable(iconName);
             if (icon != null) {
@@ -313,12 +346,12 @@ public class TextEditView extends LinearLayout {
         }
     }
 
-    private Drawable createKeyBackground(Colors colors, ColorType colorType) {
+    private Drawable createKeyBackground(int color) {
         float density = getContext().getResources().getDisplayMetrics().density;
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(6f * density);
-        gd.setColor(colors.get(colorType));
+        gd.setColor(color);
         return gd;
     }
 }
