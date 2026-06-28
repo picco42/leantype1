@@ -49,6 +49,9 @@ interface Colors {
     /** get the colorInt */
     @ColorInt fun get(color: ColorType): Int
 
+    /** get the pressed state colorInt */
+    @ColorInt fun getPressedColor(color: ColorType): Int
+
     /** apply a color to the [drawable], may be through color filter or tint (with or without state list) */
     fun setColor(drawable: Drawable, color: ColorType)
 
@@ -358,6 +361,20 @@ class DynamicColors(context: Context, override val themeStyle: String, override 
             }
             else -> view.background.colorFilter = backgroundFilter
         }
+     }
+
+    override fun getPressedColor(color: ColorType): Int {
+        if (color == ColorType.ACTION_KEY_POPUP_KEYS_BACKGROUND) {
+            return if (themeStyle == STYLE_HOLO) adjustedBackground else accent
+        }
+        return if (themeStyle == STYLE_HOLO) {
+            accent
+        } else if (isNight) {
+            if (hasKeyBorders) doubleAdjustedAccent
+            else adjustedAccent
+        } else {
+            accent
+        }
     }
 }
 
@@ -551,6 +568,13 @@ class DefaultColors (
         ACTION_KEY_ICON -> actionKeyIconColorFilter
         else -> colorFilter(get(color)) // create color filter (not great for performance, so the frequently used filters should be stored)
     }
+
+    override fun getPressedColor(color: ColorType): Int {
+        if (color == ColorType.POPUP_KEYS_BACKGROUND || color == ColorType.ACTION_KEY_POPUP_KEYS_BACKGROUND) {
+            return doubleAdjustedBackground
+        }
+        return brightenOrDarken(get(color), true)
+    }
 }
 
 class AllColors(private val colorMap: EnumMap<ColorType, Int>, override val themeStyle: String, override val hasKeyBorders: Boolean, backgroundImage: Drawable?) : Colors {
@@ -593,6 +617,10 @@ class AllColors(private val colorMap: EnumMap<ColorType, Int>, override val them
     }
 
     private fun getColorFilter(color: ColorType) = colorFilters.getOrPut(color) { colorFilter(get(color)) }
+
+    override fun getPressedColor(color: ColorType): Int {
+        return brightenOrDarken(get(color), true)
+    }
 }
 
 private fun colorFilter(color: Int, mode: BlendModeCompat = BlendModeCompat.MODULATE): ColorFilter {

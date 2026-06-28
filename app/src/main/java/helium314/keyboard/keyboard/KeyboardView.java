@@ -476,7 +476,8 @@ public class KeyboardView extends View {
                     paint.setColor(mColors.get(ColorType.EMOJI_KEY_TEXT));
                 else if (this instanceof PopupKeysKeyboardView) {
                     if (key.isPressed()) {
-                        paint.setColor(Color.BLACK); // Focused key: Black text
+                        int pressedBgColor = mColors.getPressedColor(key.hasActionKeyBackground() ? ColorType.ACTION_KEY_POPUP_KEYS_BACKGROUND : ColorType.POPUP_KEYS_BACKGROUND);
+                        paint.setColor(getContrastingColor(pressedBgColor));
                     } else {
                         paint.setColor(mColors.get(ColorType.POPUP_KEY_TEXT)); // Unfocused: Theme default
                     }
@@ -677,6 +678,38 @@ public class KeyboardView extends View {
         freeOffscreenBuffer();
     }
 
+    private static int getCompositeColor(int srcColor, int dstColor) {
+        int alpha = (srcColor >> 24) & 0xFF;
+        if (alpha == 0xFF) return srcColor;
+        if (alpha == 0x00) return dstColor;
+        
+        float fAlpha = alpha / 255f;
+        int srcR = (srcColor >> 16) & 0xFF;
+        int srcG = (srcColor >> 8) & 0xFF;
+        int srcB = srcColor & 0xFF;
+        
+        int dstR = (dstColor >> 16) & 0xFF;
+        int dstG = (dstColor >> 8) & 0xFF;
+        int dstB = dstColor & 0xFF;
+        
+        int r = Math.round(srcR * fAlpha + dstR * (1 - fAlpha));
+        int g = Math.round(srcG * fAlpha + dstG * (1 - fAlpha));
+        int b = Math.round(srcB * fAlpha + dstB * (1 - fAlpha));
+        
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
+    }
+
+    private int getContrastingColor(int bgColor) {
+        int baseBg = mColors.get(ColorType.MAIN_BACKGROUND);
+        int compositeBg = getCompositeColor(bgColor, baseBg);
+        double Lbg = androidx.core.graphics.ColorUtils.calculateLuminance(compositeBg);
+        double Lwhite = 0.95;
+        double Lblack = 0.015;
+        double ratioWhite = Lbg > Lwhite ? (Lbg + 0.05) / (Lwhite + 0.05) : (Lwhite + 0.05) / (Lbg + 0.05);
+        double ratioBlack = Lbg > Lblack ? (Lbg + 0.05) / (Lblack + 0.05) : (Lblack + 0.05) / (Lbg + 0.05);
+        return ratioWhite > ratioBlack ? 0xFFFAFAFA : 0xFF222222;
+    }
+
     private void setKeyIconColor(Key key, Drawable icon, Keyboard keyboard) {
         if (key.hasActionKeyBackground()) {
             mColors.setColor(icon, ColorType.ACTION_KEY_ICON);
@@ -692,7 +725,8 @@ public class KeyboardView extends View {
             mColors.setColor(icon, ColorType.KEY_ICON);
         } else if (this instanceof PopupKeysKeyboardView) {
             if (key.isPressed()) {
-                icon.setColorFilter(Color.BLACK, android.graphics.PorterDuff.Mode.SRC_IN);
+                int pressedBgColor = mColors.getPressedColor(key.hasActionKeyBackground() ? ColorType.ACTION_KEY_POPUP_KEYS_BACKGROUND : ColorType.POPUP_KEYS_BACKGROUND);
+                icon.setColorFilter(getContrastingColor(pressedBgColor), android.graphics.PorterDuff.Mode.SRC_IN);
             } else {
                 mColors.setColor(icon, ColorType.POPUP_KEY_ICON);
             }
@@ -704,5 +738,4 @@ public class KeyboardView extends View {
             mColors.setColor(icon, ColorType.KEY_TEXT);
         }
     }
-
 }

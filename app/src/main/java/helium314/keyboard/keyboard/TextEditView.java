@@ -265,8 +265,30 @@ public class TextEditView extends LinearLayout {
         mListener = listener;
     }
 
-    private int getContrastingColor(int bgColor) {
-        double Lbg = androidx.core.graphics.ColorUtils.calculateLuminance(bgColor);
+    private int getCompositeColor(int srcColor, int dstColor) {
+        int alpha = (srcColor >> 24) & 0xFF;
+        if (alpha == 0xFF) return srcColor;
+        if (alpha == 0x00) return dstColor;
+        
+        float fAlpha = alpha / 255f;
+        int srcR = (srcColor >> 16) & 0xFF;
+        int srcG = (srcColor >> 8) & 0xFF;
+        int srcB = srcColor & 0xFF;
+        
+        int dstR = (dstColor >> 16) & 0xFF;
+        int dstG = (dstColor >> 8) & 0xFF;
+        int dstB = dstColor & 0xFF;
+        
+        int r = Math.round(srcR * fAlpha + dstR * (1 - fAlpha));
+        int g = Math.round(srcG * fAlpha + dstG * (1 - fAlpha));
+        int b = Math.round(srcB * fAlpha + dstB * (1 - fAlpha));
+        
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
+    }
+
+    private int getContrastingColor(int bgColor, Colors colors) {
+        int compositeBg = getCompositeColor(bgColor, colors.get(ColorType.MAIN_BACKGROUND));
+        double Lbg = androidx.core.graphics.ColorUtils.calculateLuminance(compositeBg);
         double Lwhite = 0.95;
         double Lblack = 0.015;
         double ratioWhite = Lbg > Lwhite ? (Lbg + 0.05) / (Lwhite + 0.05) : (Lwhite + 0.05) / (Lbg + 0.05);
@@ -286,28 +308,28 @@ public class TextEditView extends LinearLayout {
         // 1. Clipboard operations (Select, Cut, Copy, Paste): Blue-tinted functional background
         int clipboardBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFF2196F3, 0.15f);
         int selectBg = mSelectionMode ? actionBg : clipboardBg;
-        int clipboardTextColor = getContrastingColor(clipboardBg);
-        int selectTextColor = getContrastingColor(selectBg);
+        int clipboardTextColor = getContrastingColor(clipboardBg, colors);
+        int selectTextColor = getContrastingColor(selectBg, colors);
 
         // 2. Text manipulation (Undo, Backspace): Orange-tinted functional background
         int editBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFFFF9800, 0.15f);
-        int editTextColor = getContrastingColor(editBg);
+        int editTextColor = getContrastingColor(editBg, colors);
 
         // 3. Navigation controls (Home, End, Word Left, Word Right): Green-tinted functional background
         int navBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFF4CAF50, 0.12f);
-        int navTextColor = getContrastingColor(navBg);
+        int navTextColor = getContrastingColor(navBg, colors);
 
         // 4. System / Close button: Red-tinted functional background
         int closeBg = androidx.core.graphics.ColorUtils.blendARGB(baseBg, 0xFFF44336, 0.15f);
-        int closeTextColor = getContrastingColor(closeBg);
+        int closeTextColor = getContrastingColor(closeBg, colors);
 
         // 5. Arrow Keys (Up, Down, Left, Right): Standard key background
         int arrowBg = normalBg;
-        int arrowTextColor = getContrastingColor(arrowBg);
+        int arrowTextColor = getContrastingColor(arrowBg, colors);
 
         // 6. Space Bar: Space bar background
         int spaceBtnBg = spaceBg;
-        int spaceTextColor = getContrastingColor(spaceBtnBg);
+        int spaceTextColor = getContrastingColor(spaceBtnBg, colors);
 
         // Apply background and text/icon colors to Action Buttons
         setKeyStyle(mBtnUndo, editBg, editTextColor);
