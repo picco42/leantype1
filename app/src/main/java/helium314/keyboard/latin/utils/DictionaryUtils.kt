@@ -94,8 +94,10 @@ fun getDictionaryLocales(context: Context): MutableSet<Locale> {
     if (assetsDictionaryList != null) {
         for (dictionary in assetsDictionaryList) {
             val locale = DictionaryInfoUtils.extractLocaleFromAssetsDictionaryFile(dictionary)
-            val isEnabled = enabledLocales.contains(locale)
             val hasEnabledLanguage = enabledLocales.any { it.language == locale.language }
+            // ponytail: only show assets for enabled languages to avoid showing preloaded en-US when not used
+            if (!hasEnabledLanguage) continue
+            val isEnabled = enabledLocales.contains(locale)
             if (!isEnabled && hasEnabledLanguage) continue
             locales.add(locale)
         }

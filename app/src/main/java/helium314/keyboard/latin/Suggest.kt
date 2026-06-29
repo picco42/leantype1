@@ -250,11 +250,15 @@ class Suggest(private val mDictionaryFacilitator: DictionaryFacilitator) {
                 // Score is too low for autocorrect — but for long words, the normalized score
                 // formula penalizes proportionally (weight = 1 - editDist/len), so a single typo
                 // in a 12-char word gets unfairly suppressed. Use a relaxed threshold for long words.
-                if (consideredWord.length > 6 && firstSuggestion.mScore > scoreLimit / 2) {
+                // ponytail: relax limits for misspelled words (not in dictionary) to match Gboard-like behaviour
+                val isTypedWordInDict = typedWordInfo != null
+                val minScore = if (isTypedWordInDict) (scoreLimit / 2) else (scoreLimit / 4)
+                val minLength = if (isTypedWordInDict) 6 else 3
+                if (consideredWord.length > minLength && firstSuggestion.mScore > minScore) {
                     val normalizedScore = BinaryDictionaryUtils.calcNormalizedScore(
                         consideredWord, firstSuggestion.mWord, firstSuggestion.mScore)
                     val adjustedThreshold = mAutoCorrectionThreshold *
-                        (6f / consideredWord.length.coerceAtMost(15))
+                        (minLength.toFloat() / consideredWord.length.coerceAtMost(15))
                     if (normalizedScore < adjustedThreshold) {
                         return true to false
                     }
