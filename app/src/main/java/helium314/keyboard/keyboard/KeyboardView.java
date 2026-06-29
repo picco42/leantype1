@@ -424,14 +424,6 @@ public class KeyboardView extends View {
                 case 32:   // space
                     customColor = 0xFF3D3D3D;
                     break;
-                case -25:  // Doc Start
-                case -26:  // Doc End
-                case -27:  // Line Start
-                case -28:  // Line End
-                case -10015: // Word Left
-                case -10016: // Word Right
-                    customColor = 0xFFA3B7A8;
-                    break;
             }
             if (customColor != 0) {
                 androidx.core.graphics.drawable.DrawableCompat.setTint(background, customColor);
