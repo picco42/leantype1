@@ -311,6 +311,10 @@
     <string name="autospace_after_punctuation">Autospace after punctuation</string>
     <!-- Description for "autospace_after_punctuation" setting -->
     <string name="autospace_after_punctuation_summary">Automatically insert space after punctuation when typing a new word</string>
+    <!-- Preferences item for inserting space after emoji -->
+    <string name="autospace_after_emoji">Autospace after emoji</string>
+    <!-- Description for "autospace_after_emoji" setting -->
+    <string name="autospace_after_emoji_summary">Automatically insert space after emoji when typing a new word</string>
     <!-- Preferences item for inserting space after manualle picking a suggestion -->
     <string name="autospace_after_suggestion">Autospace after picking a suggestion</string>
     <!-- Preferences item for inserting space before entering a word using gesture typing -->

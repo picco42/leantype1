@@ -289,7 +289,8 @@ public final class InputLogic {
         StatsUtils.onWordCommitUserTyped(mEnteredText, mWordComposer.isBatchMode());
         mConnection.endBatchEdit();
         // Space state must be updated before calling updateShiftState
-        mSpaceState = SpaceState.NONE;
+        // ponytail: set PHANTOM space state after emoji if autospace after emoji is enabled
+        mSpaceState = (settingsValues.mAutospaceAfterEmoji && StringUtilsKt.isEmoji(text)) ? SpaceState.PHANTOM : SpaceState.NONE;
         mEnteredText = text;
         mWordBeingCorrectedByCursor = null;
         inputTransaction.setDidAffectContents();

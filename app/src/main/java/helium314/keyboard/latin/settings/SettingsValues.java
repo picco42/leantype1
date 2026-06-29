@@ -86,6 +86,7 @@ public class SettingsValues {
         public final boolean mForceAutoCaps;
         public final boolean mDeleteSwipeEnabled;
         public final boolean mAutospaceAfterPunctuation;
+        public final boolean mAutospaceAfterEmoji;
         public final boolean mAutospaceAfterSuggestion;
         public final boolean mAutospaceAfterGestureTyping;
         public final boolean mAutospaceBeforeGestureTyping;
@@ -346,6 +347,8 @@ public class SettingsValues {
                 mDeleteSwipeEnabled = prefs.getBoolean(Settings.PREF_DELETE_SWIPE, Defaults.PREF_DELETE_SWIPE);
                 mAutospaceAfterPunctuation = prefs.getBoolean(Settings.PREF_AUTOSPACE_AFTER_PUNCTUATION,
                                 Defaults.PREF_AUTOSPACE_AFTER_PUNCTUATION);
+                mAutospaceAfterEmoji = prefs.getBoolean(Settings.PREF_AUTOSPACE_AFTER_EMOJI,
+                                Defaults.PREF_AUTOSPACE_AFTER_EMOJI);
                 mAutospaceAfterSuggestion = prefs.getBoolean(Settings.PREF_AUTOSPACE_AFTER_SUGGESTION,
                                 Defaults.PREF_AUTOSPACE_AFTER_SUGGESTION);
                 mAutospaceAfterGestureTyping = prefs.getBoolean(Settings.PREF_AUTOSPACE_AFTER_GESTURE_TYPING,
