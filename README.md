@@ -62,9 +62,6 @@
   </tr>
 </table>
 
-> **⚠️ Note:** F-Droid releases might be delayed or stuck again due to reproducibility verification issues. For the latest version, use GitHub Releases or Obtainium.
-
-
 ## Screenshots
 
 <table>
