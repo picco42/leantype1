@@ -352,7 +352,16 @@ class Suggest(private val mDictionaryFacilitator: DictionaryFacilitator) {
                 gestureIndexFingerprint = fingerprint
             }
         }
-        val suggestionResults = SwipeGestureEngine.rankByIndex(index, pointers, keyboard, SuggestedWords.MAX_SUGGESTIONS)
+        // ponytail: query bigram predictions in background to boost matching context score
+        val predictionSet = if (ngramContext.isValid) {
+            mDictionaryFacilitator.getSuggestionResults(
+                ComposedData(InputPointers(32), false, ""), ngramContext, keyboard,
+                settingsValuesForSuggestion, SESSION_ID_GESTURE, inputStyle
+            ).map { it.mWord.lowercase(Locale.ROOT) }.toSet()
+        } else {
+            emptySet()
+        }
+        val suggestionResults = SwipeGestureEngine.rankByIndex(index, pointers, keyboard, SuggestedWords.MAX_SUGGESTIONS, predictionSet)
         replaceSingleLetterFirstSuggestion(suggestionResults)
 
         // For transforming words that don't come from a dictionary, because it's our best bet

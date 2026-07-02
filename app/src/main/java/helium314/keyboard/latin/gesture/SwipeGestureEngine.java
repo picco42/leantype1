@@ -151,11 +151,58 @@ public class SwipeGestureEngine {
      * @param keyboard   current keyboard
      * @param maxResults maximum results to return
      */
+    public static boolean isSequenceMatch(String word, float[] path, float[][] charToPos) {
+        int n = path.length / 2;
+        int pathIdx = 0;
+        char lastChar = 0;
+        String w = word.toLowerCase(Locale.ROOT);
+        for (int i = 0; i < w.length(); i++) {
+            char c = w.charAt(i);
+            if (c < 'a' || c > 'z') continue;
+            if (c == lastChar) continue;
+
+            float[] target = charToPos[c - 'a'];
+            boolean found = false;
+            // ponytail: trace path coordinates to verify characters appear in correct order
+            while (pathIdx < n) {
+                float px = path[2 * pathIdx];
+                float py = path[2 * pathIdx + 1];
+                float dx = px - target[0];
+                float dy = py - target[1];
+                if (dx * dx + dy * dy <= 0.05f) { // approx 2.2 key radius threshold
+                    found = true;
+                    break;
+                }
+                pathIdx++;
+            }
+            if (!found) return false;
+            lastChar = c;
+        }
+        return true;
+    }
+
+    /**
+     * Match the gesture stroke against the precomputed index.
+     *
+     * <ol>
+     *   <li>Detect first and last letters from gesture endpoints.</li>
+     *   <li>Look up all words in the index that start with the first letter.</li>
+     *   <li>Filter by last letter (relaxed if that leaves nothing).</li>
+     *   <li>Resample the input stroke and rank candidates by L2 distance to their precomputed path.</li>
+     * </ol>
+     *
+     * @param index      precomputed word index (from {@link #buildIndex})
+     * @param pointers   raw pixel touch coordinates from BatchInputArbiter
+     * @param keyboard   current keyboard
+     * @param maxResults maximum results to return
+     * @param predictionSet set of predicted next words from bigram/ngram contexts
+     */
     public static SuggestionResults rankByIndex(
             GestureIndex index,
             InputPointers pointers,
             Keyboard keyboard,
-            int maxResults
+            int maxResults,
+            java.util.Set<String> predictionSet
     ) {
         int n = pointers.getPointerSize();
         SuggestionResults empty = new SuggestionResults(1, false, false);
@@ -193,13 +240,24 @@ public class SwipeGestureEngine {
         }
         if (filtered.isEmpty()) filtered = candidates;
 
-        // Score: negative L2 distance + log-frequency bonus (frequency [0..255], log scales nicely)
+        float[][] charToPos = buildCharToPos(keyboard);
+
+        // Score: negative L2 distance + log-frequency bonus + sequence penalty + prediction boost
         int m = filtered.size();
         float[] scores = new float[m];
         for (int i = 0; i < m; i++) {
             IndexEntry e = filtered.get(i);
             float freqBonus = (e.frequency > 0) ? (float)(Math.log(e.frequency + 1) * FREQ_WEIGHT) : 0f;
-            scores[i] = -l2(inputVec, e.path) + freqBonus;
+            
+            // ponytail: apply penalty if candidate letters do not align chronologically on path
+            boolean seqMatch = isSequenceMatch(e.word, inputVec, charToPos);
+            float seqPenalty = seqMatch ? 0f : -0.4f;
+
+            // ponytail: apply boost if word fits next-word bigram context
+            boolean isPredicted = predictionSet != null && predictionSet.contains(e.word.toLowerCase(Locale.ROOT));
+            float predBonus = isPredicted ? 0.15f : 0f;
+
+            scores[i] = -l2(inputVec, e.path) + freqBonus + seqPenalty + predBonus;
         }
 
         Integer[] idx = new Integer[m];
