@@ -105,9 +105,9 @@ fun MainSettingsScreen(
             }
             SponsorDialog(
                 onDismissRequest = { showSponsorDialog = false },
-                onSponsor = { isKofi ->
+                onSponsor = {
                     val intent = Intent()
-                    intent.data = (if (isKofi) Links.KO_FI else Links.SPONSOR).toUri()
+                    intent.data = Links.SPONSOR.toUri()
                     intent.action = Intent.ACTION_VIEW
                     ctx.startActivity(intent)
                 },

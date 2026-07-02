@@ -59,7 +59,6 @@ fun AboutScreen(
         SettingsWithoutKey.GITHUB_WIKI,
         SettingsWithoutKey.GITHUB,
         SettingsWithoutKey.SPONSOR,
-        SettingsWithoutKey.KO_FI,
         SettingsWithoutKey.SAVE_LOG,
     )
     SearchSettingsScreen(
@@ -177,20 +176,7 @@ fun createAboutSettings(context: Context) = listOf(
             icon = R.drawable.ic_settings_about_github
         )
     },
-    Setting(context, SettingsWithoutKey.KO_FI, R.string.about_kofi_link, R.string.about_kofi_link_description) {
-        val ctx = LocalContext.current
-        Preference(
-            name = it.title,
-            description = it.description,
-            onClick = {
-                val intent = Intent()
-                intent.data = Links.KO_FI.toUri()
-                intent.action = Intent.ACTION_VIEW
-                ctx.startActivity(intent)
-            },
-            icon = R.drawable.ic_settings_about
-        )
-    },
+
     Setting(context, SettingsWithoutKey.SAVE_LOG, R.string.save_log) { setting ->
         val ctx = LocalContext.current
         val scope = rememberCoroutineScope()

@@ -54,7 +54,7 @@ import helium314.keyboard.latin.settings.Settings
 @Composable
 fun SponsorDialog(
     onDismissRequest: () -> Unit,
-    onSponsor: (isKofi: Boolean) -> Unit,
+    onSponsor: () -> Unit,
     prefs: SharedPreferences
 ) {
     var neverShowAgain by remember { mutableStateOf(false) }
@@ -148,7 +148,7 @@ fun SponsorDialog(
                             onClick = {
                                 if (neverShowAgain)
                                     prefs.edit { putBoolean(Settings.PREF_DONT_SHOW_SPONSOR_DIALOG, true) }
-                                onSponsor(true)
+                                onSponsor()
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(20.dp),
@@ -157,33 +157,10 @@ fun SponsorDialog(
                             ),
                             contentPadding = PaddingValues(vertical = 12.dp)
                         ) {
-                            Text("☕", modifier = Modifier.padding(end = 8.dp))
-                            Text(
-                                text = "Support on Ko-fi",
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Button(
-                            onClick = {
-                                if (neverShowAgain)
-                                    prefs.edit { putBoolean(Settings.PREF_DONT_SHOW_SPONSOR_DIALOG, true) }
-                                onSponsor(false)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
-                            ),
-                            contentPadding = PaddingValues(vertical = 12.dp)
-                        ) {
                             Text("💖", modifier = Modifier.padding(end = 8.dp))
                             Text(
                                 text = "Sponsor on GitHub",
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                fontWeight = FontWeight.Bold
                             )
                         }
                         
