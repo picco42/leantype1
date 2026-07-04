@@ -758,9 +758,16 @@ class SuggestionStripView(context: Context, attrs: AttributeSet?, defStyle: Int)
         val languageCodes = resources.getStringArray(R.array.translate_language_codes)
         val prefs = context.prefs()
 
+        val list = languageNames.zip(languageCodes).toMutableList()
+        val currentLanguageCode = prefs.getString(SettingsWithoutKey.GEMINI_TARGET_LANGUAGE, "English") ?: "English"
+        val currentLanguageName = prefs.getString(Settings.PREF_OFFLINE_TRANSLATE_TARGET_LANGUAGE, currentLanguageCode) ?: currentLanguageCode
+        
+        if (!languageCodes.contains(currentLanguageCode) && currentLanguageCode.isNotEmpty()) {
+            list.add(0, currentLanguageName to currentLanguageCode)
+        }
+
         // Create a button for each language
-        for ((index, languageName) in languageNames.withIndex()) {
-            val languageCode = languageCodes.getOrNull(index) ?: return
+        for ((languageName, languageCode) in list) {
             val button = android.widget.TextView(context, null, R.attr.suggestionWordStyle).apply {
                 text = languageName
                 gravity = android.view.Gravity.CENTER
@@ -768,7 +775,6 @@ class SuggestionStripView(context: Context, attrs: AttributeSet?, defStyle: Int)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
                 setSingleLine()
                 ellipsize = android.text.TextUtils.TruncateAt.END
-                // Set minimum width for consistent appearance
                 minimumWidth = 100.dpToPx(resources)
             }
             button.layoutParams = LinearLayout.LayoutParams(
@@ -780,19 +786,59 @@ class SuggestionStripView(context: Context, attrs: AttributeSet?, defStyle: Int)
                 // Set the selected language and start translation
                 context.prefs().edit().apply {
                     putString(Settings.PREF_OFFLINE_TRANSLATE_TARGET_LANGUAGE, languageName)
-                    // Also update Gemini target language
                     putString(SettingsWithoutKey.GEMINI_TARGET_LANGUAGE, languageCode)
                 }.apply()
                 helium314.keyboard.latin.utils.ProofreadService(context).setTargetLanguage(languageCode)
-                // Hide selector and trigger translation
                 hideTranslateLanguageSelector()
-                // Trigger translation with new language
                 listener.onCodeInput(KeyCode.TRANSLATE, Constants.SUGGESTION_STRIP_COORDINATE, Constants.SUGGESTION_STRIP_COORDINATE, false)
             }
             Settings.getValues().mColors.setColor(button.background, ColorType.TOOL_BAR_KEY)
             button.setBackgroundResource(R.drawable.toolbar_key_background)
             languageList.addView(button)
         }
+
+        // Setup Custom... button
+        val customButton = android.widget.TextView(context, null, R.attr.suggestionWordStyle).apply {
+            text = "Custom..."
+            gravity = android.view.Gravity.CENTER
+            setPadding(8.dpToPx(resources), 0, 8.dpToPx(resources), 0)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+            setSingleLine()
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            minimumWidth = 100.dpToPx(resources)
+        }
+        customButton.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
+        
+        customButton.setOnClickListener {
+            val builder = android.app.AlertDialog.Builder(context)
+            builder.setTitle("Custom Target Language")
+            val input = android.widget.EditText(context).apply {
+                setText(if (currentLanguageCode == "custom") "" else currentLanguageCode)
+                setSingleLine()
+            }
+            builder.setView(input)
+            builder.setPositiveButton("OK") { dialog, _ ->
+                val customLang = input.text.toString().trim()
+                if (customLang.isNotEmpty()) {
+                    prefs.edit().apply {
+                        putString(Settings.PREF_OFFLINE_TRANSLATE_TARGET_LANGUAGE, customLang)
+                        putString(SettingsWithoutKey.GEMINI_TARGET_LANGUAGE, customLang)
+                    }.apply()
+                    helium314.keyboard.latin.utils.ProofreadService(context).setTargetLanguage(customLang)
+                    hideTranslateLanguageSelector()
+                    listener.onCodeInput(KeyCode.TRANSLATE, Constants.SUGGESTION_STRIP_COORDINATE, Constants.SUGGESTION_STRIP_COORDINATE, false)
+                }
+                dialog.dismiss()
+            }
+            builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+            builder.show()
+        }
+        Settings.getValues().mColors.setColor(customButton.background, ColorType.TOOL_BAR_KEY)
+        customButton.setBackgroundResource(R.drawable.toolbar_key_background)
+        languageList.addView(customButton)
 
         // Setup close button
         translateLanguageCloseButton.isVisible = true
