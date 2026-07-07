@@ -49,6 +49,8 @@ class Suggest(private val mDictionaryFacilitator: DictionaryFacilitator) {
     @Volatile private var gestureIndex: SwipeGestureEngine.GestureIndex? = null
     @Volatile private var gestureIndexFingerprint: Int = 0
 
+    fun getGestureIndex(): SwipeGestureEngine.GestureIndex? = gestureIndex
+
     // Cached scoreLimit to avoid repeated Settings lookups in hot path
     // The read-then-write of (mLastScoreLimitUpdateTime, mCachedScoreLimitForAutocorrect)
     // is guarded by `synchronized(this)` in shouldBeAutoCorrected() to make the update atomic

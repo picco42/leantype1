@@ -9,6 +9,7 @@
  */
 package helium314.keyboard.latin.gesture;
 
+import android.content.Context;
 import android.graphics.Rect;
 import helium314.keyboard.keyboard.Key;
 import helium314.keyboard.keyboard.Keyboard;
@@ -17,6 +18,7 @@ import helium314.keyboard.latin.common.InputPointers;
 import helium314.keyboard.latin.dictionary.Dictionary;
 import helium314.keyboard.latin.utils.SuggestionResults;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ public class SwipeGestureEngine {
     // ── Self-learning: boost words user actually confirmed via gesture ─────────
     // ponytail: ConcurrentHashMap so corrections from any thread don't corrupt state
     private static final ConcurrentHashMap<String, Integer> sUserBoost = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, float[]> sUserPaths = new ConcurrentHashMap<>();
     private static final int USER_BOOST_MAX = 50; // cap to avoid runaway inflation
     private static final float[] sUserBoostCache = new float[USER_BOOST_MAX + 1];
     static {
@@ -41,11 +44,118 @@ public class SwipeGestureEngine {
         }
     }
 
-    /** Call when user selects a gesture suggestion — bumps its score in future matches. */
-    public static void recordAccepted(String word) {
+    private static File sUserDataFile = null;
+
+    public static void initialize(Context context) {
+        if (sUserDataFile != null) return;
+        sUserDataFile = new File(context.getFilesDir(), "gesture_user_data.bin");
+        loadUserData();
+    }
+
+    /** Call when user selects a gesture suggestion — bumps its score and saves their swipe path. */
+    public static void recordAccepted(String word, InputPointers pointers, Keyboard keyboard, GestureIndex activeIndex) {
         if (word == null || word.isEmpty()) return;
         String key = word.toLowerCase(Locale.ROOT);
         sUserBoost.merge(key, 1, (a, b) -> Math.min(a + b, USER_BOOST_MAX));
+
+        if (pointers != null && pointers.getPointerSize() >= 2 && keyboard != null) {
+            int n = pointers.getPointerSize();
+            int[] xs = pointers.getXCoordinates();
+            int[] ys = pointers.getYCoordinates();
+            float kw = keyboard.mOccupiedWidth, kh = keyboard.mOccupiedHeight;
+            float[] rawFlat = new float[n * 2];
+            for (int i = 0; i < n; i++) {
+                rawFlat[2 * i]     = xs[i] / kw;
+                rawFlat[2 * i + 1] = ys[i] / kh;
+            }
+            float[] inputVec = resampleFlat(rawFlat, n, N_PTS);
+            sUserPaths.put(key, inputVec);
+
+            // Update active index in-place if provided
+            if (activeIndex != null && !key.isEmpty()) {
+                char first = key.charAt(0);
+                List<IndexEntry> list = activeIndex.byFirst.get(first);
+                if (list != null) {
+                    for (IndexEntry entry : list) {
+                        if (entry.lowerWord.equals(key)) {
+                            for (int i = 0; i < N_PTS * 2; i++) {
+                                entry.path[i] = entry.path[i] * 0.3f + inputVec[i] * 0.7f;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        saveUserDataAsync();
+    }
+
+    private static void saveUserData() {
+        if (sUserDataFile == null) return;
+        try (java.io.DataOutputStream out = new java.io.DataOutputStream(
+                new java.io.BufferedOutputStream(new java.io.FileOutputStream(sUserDataFile)))) {
+            out.writeInt(1); // format version
+            
+            // Save boosts
+            out.writeInt(sUserBoost.size());
+            for (Map.Entry<String, Integer> entry : sUserBoost.entrySet()) {
+                out.writeUTF(entry.getKey());
+                out.writeInt(entry.getValue());
+            }
+            
+            // Save paths
+            out.writeInt(sUserPaths.size());
+            for (Map.Entry<String, float[]> entry : sUserPaths.entrySet()) {
+                out.writeUTF(entry.getKey());
+                float[] path = entry.getValue();
+                for (int i = 0; i < N_PTS * 2; i++) {
+                    out.writeFloat(path[i]);
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SwipeGestureEngine", "Error saving user data", e);
+        }
+    }
+
+    private static void saveUserDataAsync() {
+        new Thread(() -> {
+            synchronized (SwipeGestureEngine.class) {
+                saveUserData();
+            }
+        }).start();
+    }
+
+    private static void loadUserData() {
+        if (sUserDataFile == null || !sUserDataFile.exists()) return;
+        synchronized (SwipeGestureEngine.class) {
+            try (java.io.DataInputStream in = new java.io.DataInputStream(
+                    new java.io.BufferedInputStream(new java.io.FileInputStream(sUserDataFile)))) {
+                int version = in.readInt();
+                if (version != 1) return;
+                
+                sUserBoost.clear();
+                int numBoosts = in.readInt();
+                for (int i = 0; i < numBoosts; i++) {
+                    String key = in.readUTF();
+                    int count = in.readInt();
+                    sUserBoost.put(key, count);
+                }
+                
+                sUserPaths.clear();
+                int numPaths = in.readInt();
+                for (int i = 0; i < numPaths; i++) {
+                    String key = in.readUTF();
+                    float[] path = new float[N_PTS * 2];
+                    for (int j = 0; j < N_PTS * 2; j++) {
+                        path[j] = in.readFloat();
+                    }
+                    sUserPaths.put(key, path);
+                }
+            } catch (Exception e) {
+                android.util.Log.e("SwipeGestureEngine", "Error loading user data", e);
+            }
+        }
     }
 
     // ── Precomputed index ─────────────────────────────────────────────────────
@@ -61,10 +171,20 @@ public class SwipeGestureEngine {
         IndexEntry(String word, float[] path, int frequency) {
             this.word = word;
             this.lowerWord = word.toLowerCase(Locale.ROOT);
-            this.path = path;
             this.frequency = frequency;
-            this.pathLen = pathLength(path);
             this.freqBonus = (frequency > 0) ? (float)(Math.log(frequency + 1) * FREQ_WEIGHT) : 0f;
+            
+            float[] userPath = sUserPaths.get(this.lowerWord);
+            if (userPath != null && userPath.length == N_PTS * 2) {
+                float[] blended = new float[N_PTS * 2];
+                for (int i = 0; i < N_PTS * 2; i++) {
+                    blended[i] = path[i] * 0.3f + userPath[i] * 0.7f;
+                }
+                this.path = blended;
+            } else {
+                this.path = path;
+            }
+            this.pathLen = pathLength(this.path);
         }
     }
 
