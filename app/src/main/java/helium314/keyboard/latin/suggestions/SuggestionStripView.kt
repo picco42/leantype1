@@ -925,7 +925,9 @@ class SuggestionStripView(context: Context, attrs: AttributeSet?, defStyle: Int)
                             context.startActivity(intent)
                         }
                     }
-                    val toolbarHeight = min(toolbarExpandKey.layoutParams.height, resources.getDimension(R.dimen.config_suggestions_strip_height).toInt())
+                    val configHeight = resources.getDimension(R.dimen.config_suggestions_strip_height).toInt()
+                    val rawHeight = toolbarExpandKey.layoutParams.height
+                    val toolbarHeight = if (rawHeight > 0) min(rawHeight, configHeight) else configHeight
                     dictDownloadButton?.layoutParams = LinearLayout.LayoutParams(toolbarHeight, toolbarHeight).apply {
                         gravity = android.view.Gravity.CENTER_VERTICAL
                     }
