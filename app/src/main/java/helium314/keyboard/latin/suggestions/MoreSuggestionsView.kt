@@ -273,14 +273,24 @@ class MoreSuggestionsView @JvmOverloads constructor(
         if (index < 0 || index >= suggestedWords.size()) return
         val word = suggestedWords.getInfo(index).word
 
-        android.app.AlertDialog.Builder(context)
+        val dialog = android.app.AlertDialog.Builder(context)
             .setMessage(context.getString(R.string.delete_confirmation, word))
             .setPositiveButton(R.string.delete) { _, _ ->
                 listener.removeSuggestion(word)
                 dismissPopupKeysPanel()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .create()
+
+        val window = dialog.window
+        if (window != null) {
+            val layoutParams = window.attributes
+            layoutParams.token = windowToken
+            layoutParams.type = android.view.WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG
+            window.attributes = layoutParams
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+        }
+        dialog.show()
     }
 
     companion object {
