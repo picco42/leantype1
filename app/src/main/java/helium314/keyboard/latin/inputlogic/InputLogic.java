@@ -3635,6 +3635,7 @@ public final class InputLogic {
     }
 
     private boolean tryJumpToNextPlaceholder() {
+        mConnection.finishComposingText();
         final CharSequence before = mConnection.getTextBeforeCursor(1000, 0);
         final CharSequence after = mConnection.getTextAfterCursor(1000, 0);
         final String beforeStr = before != null ? before.toString() : "";
@@ -3664,6 +3665,7 @@ public final class InputLogic {
         }
         
         if (bestStart != -1) {
+            resetComposingState(true);
             final int currentSelectionEnd = mConnection.getExpectedSelectionEnd();
             final int targetStart = currentSelectionEnd - cursorPositionInFull + bestStart;
             final int targetEnd = currentSelectionEnd - cursorPositionInFull + bestEnd;
