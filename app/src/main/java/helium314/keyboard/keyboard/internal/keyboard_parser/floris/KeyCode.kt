@@ -106,6 +106,12 @@ object KeyCode {
     const val CURRENCY_SLOT_6 =             -806
 
     const val MULTIPLE_CODE_POINTS =        -902
+
+    const val CUSTOM1 = -10010
+    const val CUSTOM2 = -10011
+    const val CUSTOM3 = -10012
+    const val CUSTOM4 = -10013
+    const val CUSTOM5 = -10014
     //const val DRAG_MARKER =                 -991
     //const val NOOP =                        -999
 

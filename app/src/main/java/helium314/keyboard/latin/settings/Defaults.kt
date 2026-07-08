@@ -40,6 +40,11 @@ object Defaults {
         LayoutType.CLIPBOARD_BOTTOM -> "clip_bottom_row"
         LayoutType.HANDWRITING_BOTTOM -> "handwriting_bottom_row"
         LayoutType.EDITING -> "editing"
+        LayoutType.CUSTOM1 -> "symbols"
+        LayoutType.CUSTOM2 -> "symbols"
+        LayoutType.CUSTOM3 -> "symbols"
+        LayoutType.CUSTOM4 -> "symbols"
+        LayoutType.CUSTOM5 -> "symbols"
     }
     
     const val PREF_SPLIT_TOOLBAR = false

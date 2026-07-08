@@ -59,6 +59,11 @@ class KeyboardParser(private val params: KeyboardParams, private val context: Co
             KeyboardId.ELEMENT_CLIPBOARD_BOTTOM_ROW -> LayoutType.CLIPBOARD_BOTTOM
             KeyboardId.ELEMENT_HANDWRITING_BOTTOM_ROW -> LayoutType.HANDWRITING_BOTTOM
             KeyboardId.ELEMENT_TEXT_EDIT -> LayoutType.EDITING
+            KeyboardId.ELEMENT_CUSTOM1 -> LayoutType.CUSTOM1
+            KeyboardId.ELEMENT_CUSTOM2 -> LayoutType.CUSTOM2
+            KeyboardId.ELEMENT_CUSTOM3 -> LayoutType.CUSTOM3
+            KeyboardId.ELEMENT_CUSTOM4 -> LayoutType.CUSTOM4
+            KeyboardId.ELEMENT_CUSTOM5 -> LayoutType.CUSTOM5
             else -> LayoutType.MAIN
         }
         val baseKeys = LayoutParser.parseLayout(layoutType, params, context)
