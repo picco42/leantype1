@@ -1222,6 +1222,9 @@ public final class InputLogic {
             final LatinIME.UIHandler handler) {
         inputTransaction.setDidAffectContents();
         if (event.getCodePoint() == Constants.CODE_ENTER) {
+            if (tryJumpToNextPlaceholder()) {
+                return;
+            }
             final EditorInfo editorInfo = getCurrentInputEditorInfo();
             final int imeOptionsActionId = InputTypeUtils.getImeOptionsActionIdFromEditorInfo(editorInfo);
             if (InputTypeUtils.IME_ACTION_CUSTOM_LABEL == imeOptionsActionId) {
@@ -3629,6 +3632,47 @@ public final class InputLogic {
                 });
     }
 
+    private boolean tryJumpToNextPlaceholder() {
+        final CharSequence before = mConnection.getTextBeforeCursor(1000, 0);
+        final CharSequence after = mConnection.getTextAfterCursor(1000, 0);
+        final String beforeStr = before != null ? before.toString() : "";
+        final String afterStr = after != null ? after.toString() : "";
+        
+        final String fullText = beforeStr + afterStr;
+        final int cursorPositionInFull = beforeStr.length();
+        
+        final java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("%cursor(\\d+)%");
+        final java.util.regex.Matcher matcher = pattern.matcher(fullText);
+        
+        int bestStart = -1;
+        int bestEnd = -1;
+        int lowestNum = Integer.MAX_VALUE;
+        
+        while (matcher.find()) {
+            try {
+                final int num = Integer.parseInt(matcher.group(1));
+                if (num < lowestNum) {
+                    lowestNum = num;
+                    bestStart = matcher.start();
+                    bestEnd = matcher.end();
+                }
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        
+        if (bestStart != -1) {
+            final int currentSelectionEnd = mConnection.getExpectedSelectionEnd();
+            final int targetStart = currentSelectionEnd - cursorPositionInFull + bestStart;
+            final int targetEnd = currentSelectionEnd - cursorPositionInFull + bestEnd;
+            
+            mConnection.setSelection(targetStart, targetEnd);
+            mConnection.commitText("", 1);
+            return true;
+        }
+        return false;
+    }
+
     private void commitExpandedText(final String shortcut, final String expanded) {
         final int cursorOffset = expanded.indexOf("%cursor%");
         final String finalExpandedText = cursorOffset != -1 ? expanded.replace("%cursor%", "") : expanded;
@@ -3645,6 +3689,8 @@ public final class InputLogic {
                 final int newCursorPos = mConnection.getExpectedSelectionEnd() - moveBackAmount;
                 mConnection.setSelection(newCursorPos, newCursorPos);
             }
+        } else {
+            tryJumpToNextPlaceholder();
         }
         
         mLastExpandedCursorPosition = mConnection.getExpectedSelectionEnd();
