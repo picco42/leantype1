@@ -247,25 +247,25 @@ public class SwipeGestureEngine {
         }
     }
 
-    public static GestureIndex buildIndex(Map<String, Integer> wordsWithFreq, Keyboard keyboard) {
+    public static GestureIndex buildIndex(helium314.keyboard.latin.DictionaryFacilitator facilitator, Keyboard keyboard) {
         float[][] charToPos = buildCharToPos(keyboard);
         Map<Character, List<IndexEntry>> byFirst = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : wordsWithFreq.entrySet()) {
-            String raw = entry.getKey();
-            int freq = entry.getValue() != null ? entry.getValue() : 0;
+        facilitator.forEachMainDictionaryWord((raw, freqVal) -> {
+            if (raw == null) return;
+            int freq = freqVal != null ? freqVal : 0;
             // ponytail: apply user boost to freq so self-learned words rank higher immediately
             String lk = getLowerCase(raw);
             Integer boost = sUserBoost.get(lk);
             if (boost != null) freq = Math.min(freq + boost * 5, 255);
-            if (freq < 3) continue;
+            if (freq < 3) return;
             String word = lk;
-            if (word.isEmpty()) continue;
+            if (word.isEmpty()) return;
             char first = word.charAt(0);
-            if (first < 'a' || first > 'z') continue;
+            if (first < 'a' || first > 'z') return;
             float[] path = wordPath(word, charToPos);
             byFirst.computeIfAbsent(first, k -> new ArrayList<>())
                     .add(new IndexEntry(raw, path, freq));
-        }
+        });
         for (List<IndexEntry> list : byFirst.values()) {
             list.sort((a, b) -> Integer.compare(b.frequency, a.frequency));
         }

@@ -554,7 +554,17 @@ class DictionaryFacilitatorImpl : DictionaryFacilitator {
         if (userDict != null) {
             result.putAll(userDict.getAllWordsWithFrequency())
         }
-        return result
+        return result;
+    }
+
+    override fun forEachMainDictionaryWord(consumer: java.util.function.BiConsumer<String, Int>) {
+        val dictGroup = dictionaryGroups.firstOrNull() ?: return
+        val mainDict = dictGroup.getDict(Dictionary.TYPE_MAIN)
+        mainDict?.forEachWord(consumer)
+        val userHistoryDict = dictGroup.getSubDict(Dictionary.TYPE_USER_HISTORY)
+        userHistoryDict?.forEachWord(consumer)
+        val userDict = dictGroup.getSubDict(Dictionary.TYPE_USER)
+        userDict?.forEachWord(consumer)
     }
 
     // TODO: Revise the way to fusion suggestion results.

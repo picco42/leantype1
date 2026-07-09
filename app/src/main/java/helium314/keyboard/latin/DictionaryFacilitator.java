@@ -165,4 +165,7 @@ public interface DictionaryFacilitator {
     default Map<String, Integer> getAllMainDictionaryWordsWithFrequency() {
         return Collections.emptyMap();
     }
+
+    default void forEachMainDictionaryWord(java.util.function.BiConsumer<String, Integer> consumer) {
+    }
 }

@@ -346,8 +346,7 @@ class Suggest(private val mDictionaryFacilitator: DictionaryFacilitator) {
             val fingerprint = SwipeGestureEngine.layoutFingerprint(keyboard)
             var index = gestureIndex
             if (index == null || index.byFirst.isEmpty() || gestureIndexFingerprint != fingerprint) {
-                val words = mDictionaryFacilitator.getAllMainDictionaryWordsWithFrequency()
-                index = SwipeGestureEngine.buildIndex(words, keyboard)
+                index = SwipeGestureEngine.buildIndex(mDictionaryFacilitator, keyboard)
                 if (index.byFirst.isNotEmpty()) {
                     gestureIndex = index
                     gestureIndexFingerprint = fingerprint
